@@ -49,6 +49,7 @@ export default function VehiculosListar() {
   const [selectedNroSerie, setSelectedNroSerie] = useState<string>("");
   const [selectedProveedor, setSelectedProveedor] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [filtroActivo, setFiltroActivo] = useState<string | null>("opcion1");
   const [metadataPage, setMetadataPage] = useState<
     PaginaResponseType<VehiculoSchemaType>
   >({
@@ -59,7 +60,7 @@ export default function VehiculosListar() {
   });
   const [selectedEstado, setSelectedEstado] =
     useState<boolean>(
-      true
+      true,
     ); /*ACA HAY Q HACER LA FUNCION DE LOS BOTONES DE ALTA Y BAJA*/
   const handleRowClick = (
     id: string,
@@ -68,7 +69,7 @@ export default function VehiculosListar() {
     patente?: string,
     estadoStr?: string,
     nroSerie?: string,
-    proveedor?: string
+    proveedor?: string,
   ) => {
     setSelectedId(id);
     setSelectedMarca(marca || "");
@@ -80,19 +81,23 @@ export default function VehiculosListar() {
     setShowModal(true);
   };
   useEffect(() => {
-    fetch(
-      `${endpointsAPI.vehiculos.listar.action}?nroPagina=${currentPage}&tamanoPagina=10`,
-      {
-        method: endpointsAPI.vehiculos.listar.method,
-      }
-    )
+    let url = `${endpointsAPI.vehiculos.listar.action}?nroPagina=${currentPage}&tamanoPagina=10`;
+    if (filtroActivo === "opcion2") {
+      url += `&estado=true`;
+    } else if (filtroActivo === "opcion3") {
+      url += `&estado=false`;
+    }
+
+    fetch(url, {
+      method: endpointsAPI.vehiculos.listar.method,
+    })
       .then((response) => response.json())
       .then((apiResponse) => {
         console.log(apiResponse);
 
         const vehiculosParser = z.array(VehiculoApiParser);
         const vehiculos: VehiculoSchemaType[] = vehiculosParser.parse(
-          apiResponse.items
+          apiResponse.items,
         );
         setMetadataPage({
           data: vehiculos,
@@ -102,7 +107,7 @@ export default function VehiculosListar() {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [currentPage]);
+  }, [currentPage, filtroActivo]);
 
   const tableData = metadataPage.data.map((vehiculo: VehiculoSchemaType) => (
     <tr
@@ -139,6 +144,10 @@ export default function VehiculosListar() {
       <div className="my-4 d-flex justify-content-end">
         <TabFilterRadios
           defaultValue="opcion1"
+          onChange={(value) => {
+            setFiltroActivo(value);
+            setCurrentPage(1);
+          }}
           options={[
             { value: "opcion1", label: " Ver Todos", icon: "bi-eye" },
             { value: "opcion2", label: " Ver Activos", icon: "bi-power" },
@@ -173,18 +182,18 @@ export default function VehiculosListar() {
           <ButtonEdit
             id={selectedId ? selectedId : "0"}
             endpoint={endpointFront.vehiculos.actualizar.action(
-              selectedId ? parseInt(selectedId) : 0
+              selectedId ? parseInt(selectedId) : 0,
             )}
           />
           <AltaBajaLogica
             estado={selectedEstado}
             methodAlta={endpointsAPI.vehiculos.altaLogica.method}
             endpointBaja={endpointsAPI.vehiculos.bajaLogica.action(
-              selectedId ? parseInt(selectedId) : 0
+              selectedId ? parseInt(selectedId) : 0,
             )}
             methodBaja={endpointsAPI.vehiculos.bajaLogica.method}
             endpointAlta={endpointsAPI.vehiculos.altaLogica.action(
-              selectedId ? parseInt(selectedId) : 0
+              selectedId ? parseInt(selectedId) : 0,
             )}
             onChange={(nuevoEstado) => {
               setSelectedEstado(nuevoEstado);
@@ -194,7 +203,7 @@ export default function VehiculosListar() {
                 data: prevData.data.map((vehiculo) =>
                   String(vehiculo.idVehiculo) === String(selectedId)
                     ? { ...vehiculo, Estado: nuevoEstado }
-                    : vehiculo
+                    : vehiculo,
                 ),
               }));
               setShowModal(false);

@@ -22,9 +22,17 @@ namespace Backend.Services
         }
 
         // GET TODO VEHICULOS
-        public async Task<PagedResponse<VehiculoDto>> GetAllAsync(int nroPagina, int tamanoPagina)
+        public async Task<PagedResponse<VehiculoDto>> GetAllAsync(
+            int nroPagina,
+            int tamanoPagina,
+            bool? estado = null
+        )
         {
             IQueryable<Vehiculo> query = _context.Vehiculos;
+            if (estado.HasValue)
+            {
+                query = query.Where(v => v.Estado == estado);
+            }
             int totalRegistrosVehiculo = await query.CountAsync();
             List<VehiculoDto>? vehiculos = await query
                 .Include(m => m.Matafuego)

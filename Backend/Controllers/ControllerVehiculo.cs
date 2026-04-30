@@ -22,12 +22,14 @@ public class ControllerVehiculo : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllVehiculos(
         [FromQuery] int nroPagina = 1,
-        [FromQuery] int tamanoPagina = 10
+        [FromQuery] int tamanoPagina = 10,
+        [FromQuery] bool? estado = null
     )
     {
         PagedResponse<VehiculoDto> vehiculos = await _serviceVehiculo.GetAllAsync(
             nroPagina,
-            tamanoPagina
+            tamanoPagina,
+            estado
         );
         return Ok(vehiculos);
     }
