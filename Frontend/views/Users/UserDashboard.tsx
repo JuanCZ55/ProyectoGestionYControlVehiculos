@@ -457,6 +457,7 @@ export function UserDashboard() {
                 </li>
               </ul>
               <Button
+                variant="outline-primary"
                 onClick={handleChangePassword}
                 className="btn btn-outline-primary w-100 mt-auto rounded-pill fw-bold">
                 <i className="bi bi-lock"></i> Cambiar Contraseña
