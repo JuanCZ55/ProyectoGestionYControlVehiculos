@@ -304,6 +304,10 @@ export const endpointsAPI = {
       action: (id: number) => `${API_ROUTE}/usuarios/cambiarContrasena/${id}`,
       method: "PUT",
     },
+    cambiarEmail: {
+      action: (id: number) => `${API_ROUTE}/usuarios/email/${id}`,
+      method: "PUT",
+    },
   },
   persona: {
     actualizarPersona: {

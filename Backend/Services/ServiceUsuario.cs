@@ -201,6 +201,20 @@ namespace Backend.Services
             return true;
         }
 
+        public async Task<bool> updateEmail(int id, string email)
+        {
+            Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
+            if (usuarioFinded == null)
+                throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
+            if (await getUsuarioByEmailAsync(email) is Usuario usuario && usuario.IdUsuario != id)
+            {
+                throw new InvalidOperationException("El usuario con gmail " + email + " ya existe");
+            }
+            usuarioFinded.Gmail = email;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> updateAvatar(int id, IFormFile file)
         {
             Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);

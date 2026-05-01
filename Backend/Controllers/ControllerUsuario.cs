@@ -214,6 +214,25 @@ public class ControllerUsuario : ControllerBase
         }
     }
 
+    [Authorize(policy: "Everyone")]
+    [HttpPut("email/{id}")]
+    public async Task<IActionResult> updateEmail(int id, [FromBody] UpdateGmailDto emailDto)
+    {
+        try
+        {
+            await _serviceUsuario.updateEmail(id, emailDto.Gmail!);
+            return Ok("Email actualizado");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
+
     [Authorize(Policy = "Everyone")]
     [HttpPost("avatar/{id}")]
     [Consumes("multipart/form-data")] // <-- ESTO ES CLAVE PARA SWAGGER

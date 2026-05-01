@@ -24,6 +24,8 @@ export function UserDashboard() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<boolean>(false);
   const [showGmailModal, setShowGmailModal] = useState(false);
+  const [newEmail, setNewEmail] = useState<string>("");
+  const [validEmail, setValidEmail] = useState<boolean>(false);
   // Estado editable para el formulario
   const [persona, setPersona] = useState<PersonaType>({
     idPersona: 0,
@@ -33,7 +35,29 @@ export function UserDashboard() {
     fechaNac: new Date(),
     estado: false,
   });
+  // 1. Agregamos un estado para controlar el mensaje de error visual
+  const [gmailError, setGmailError] = useState<string>("");
 
+  // 2. Creamos una función exclusiva para manejar los cambios del correo
+  const handleGmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nuevoValor = e.target.value;
+
+    // Tu patrón exacto de C#
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|gob|com\.[a-z]{2}|gob\.[a-z]{2})$/;
+
+    // Actualizamos el estado del usuario (¡No de la persona!)
+    setNewEmail(nuevoValor);
+
+    // Evaluamos el patrón: si no pasa, mostramos error. Si pasa, lo limpiamos.
+    if (!emailRegex.test(nuevoValor)) {
+      setGmailError("El correo debe ser válido (ej: nombre@gmail.com)");
+      setValidEmail(false);
+    } else {
+      setGmailError("");
+      setValidEmail(true);
+    }
+  };
   useEffect(() => {
     const user = getUserFromToken();
     if (user?.sub != null) {
@@ -60,7 +84,7 @@ export function UserDashboard() {
 
           const dataFromApi = await responseFromApi.json();
           setUsuario(dataFromApi);
-
+          setNewEmail(dataFromApi.gmail);
           // Llenamos el estado editable con los datos recién traídos de la BD
           if (dataFromApi.persona) {
             setPersona(dataFromApi.persona);
@@ -103,6 +127,36 @@ export function UserDashboard() {
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+  const handleSubmitEmail = async () => {
+    try {
+      const response = await fetch(
+        endpointsAPI.usuarios.cambiarEmail.action(userId),
+        {
+          method: endpointsAPI.usuarios.cambiarEmail.method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ gmail: newEmail }),
+        },
+      );
+      if (!response.ok) {
+        let errorMessage = await response.text();
+        const errorJSON = JSON.parse(errorMessage);
+        if (errorJSON.mensaje) {
+          errorMessage = errorJSON.mensaje;
+        }
+        console.log(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Si el fetch sale bien, cerramos el modal y avisamos
+      usuario!.gmail = newEmail;
+      handleCloseGmailModal();
+      Swal.fire("Éxito", "Correo actualizado", "success");
+    } catch (error) {
+      setNewEmail(usuario!.gmail!);
+      handleCloseGmailModal();
+      handleError(error);
     }
   };
   const handleChangePassword = () => {
@@ -538,13 +592,14 @@ export function UserDashboard() {
             Gmail
           </label>
           <input
-            type="text"
-            className="form-control"
+            type="email"
+            className={`form-control ${gmailError ? "is-invalid" : ""}`}
             name="gmail"
-            placeholder="Ej: Juan"
-            value={usuario?.gmail}
-            onChange={handlePersonaChange}
+            placeholder="Ej: correo@gmail.com"
+            value={newEmail || ""}
+            onChange={handleGmailChange}
           />
+          {gmailError && <div className="invalid-feedback">{gmailError}</div>}
         </Modal.Body>
         <Modal.Footer className="bg-light border-top-0">
           <Button
@@ -556,7 +611,8 @@ export function UserDashboard() {
           <Button
             variant="dark"
             className="fw-bold rounded-pill px-4"
-            onClick={handleGuardarPersona}>
+            onClick={handleSubmitEmail}
+            disabled={!validEmail}>
             Guardar Cambios
           </Button>
         </Modal.Footer>
