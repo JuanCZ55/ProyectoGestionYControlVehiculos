@@ -35,6 +35,7 @@ import Login from "../../views/Auth/Login";
 import Usuarios from "../../views/Usuarios";
 import { AgregarUsuario } from "../../views/Users/RegisterUsers";
 import UsersList from "../../views/Users/UsersList";
+import { UserDashboard } from "../../views/Users/UserDashboard";
 const ProtectedLayout = () => {
   return (
     <>
@@ -179,6 +180,9 @@ export default function RoutesComponent() {
             path={endpointFront.mantenimiento.listarPorVehiculo.action}
             element={<ListarServicios />}
           />
+          <Route
+            path={endpointFront.usuarios.dashboard.action}
+            element={<UserDashboard />}></Route>
         </Route>
       </Route>
       <Route element={ProtectedRoute({ allowedRoles: ["1"] })}>

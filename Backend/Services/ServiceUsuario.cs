@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -70,9 +71,23 @@ namespace Backend.Services
                 Gmail = usuario.Gmail,
                 AvatarUrl = usuario.AvatarUrl,
                 IdRol = usuario.IdRol,
-                Rol = usuario.Rol,
+                Rol =
+                    usuario.Rol != null
+                        ? new Rol { IdRol = usuario.Rol.IdRol, Nombre = usuario.Rol.Nombre }
+                        : null,
                 IdPersona = usuario.IdPersona,
-                Persona = usuario.Persona,
+                Persona =
+                    usuario.Persona != null
+                        ? new Persona
+                        {
+                            IdPersona = usuario.Persona.IdPersona,
+                            Nombre = usuario.Persona.Nombre,
+                            Apellido = usuario.Persona.Apellido,
+                            Dni = usuario.Persona.Dni,
+                            Estado = usuario.Persona.Estado,
+                            FechaNac = usuario.Persona.FechaNac,
+                        }
+                        : null,
                 Estado = usuario.Estado,
             };
         }
@@ -175,15 +190,59 @@ namespace Backend.Services
             return true;
         }
 
-        public async Task<bool> resetPassword(int id)
+        public async Task<bool> resetPassword(int id, string contraseña)
         {
             Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
             if (usuarioFinded == null)
                 throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
-            string password = _servicePassword.HashPassword("Reset123456!");
+            string password = _servicePassword.HashPassword(contraseña);
             usuarioFinded.Contrasena = password;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> updateAvatar(int id, IFormFile file)
+        {
+            Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
+            if (usuarioFinded == null)
+                throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
+            string extension = Path.GetExtension(file.FileName);
+            string nombreArchivo = $"{id}_{DateTime.Now.Ticks}{extension}";
+            string carpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars");
+            if (!Directory.Exists(carpeta))
+            {
+                Directory.CreateDirectory(carpeta);
+            }
+            string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
+            using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            usuarioFinded.AvatarUrl = nombreArchivo;
+            _context.Usuarios.Update(usuarioFinded);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<string?> getRutaAvatar(int id)
+        {
+            Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
+            if (usuarioFinded == null)
+                throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
+            if (usuarioFinded.AvatarUrl == null)
+            {
+                return null;
+            }
+            string rutaAvatar = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "Avatars",
+                usuarioFinded.AvatarUrl
+            );
+            if (!File.Exists(rutaAvatar))
+            {
+                return null;
+            }
+            return rutaAvatar;
         }
     }
 }

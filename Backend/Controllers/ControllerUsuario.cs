@@ -38,7 +38,7 @@ public class ControllerUsuario : ControllerBase
         return Ok(usuarios);
     }
 
-    [Authorize(Policy = "RequireAdmin")]
+    [Authorize(Policy = "Everyone")]
     // GET USUARIO POR ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUsuarioById(int id)
@@ -179,7 +179,7 @@ public class ControllerUsuario : ControllerBase
     {
         try
         {
-            await _serviceUsuario.resetPassword(id);
+            await _serviceUsuario.resetPassword(id, "Reset123456!");
             return Ok(new { message = "Contraseña reseteada: Reset123456!" });
         }
         catch (KeyNotFoundException ex)
@@ -189,6 +189,77 @@ public class ControllerUsuario : ControllerBase
         catch (InvalidOperationException ex)
         {
             return BadRequest(new { mensaje = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "Everyone")]
+    [HttpPut("cambiarContrasena/{id}")]
+    public async Task<IActionResult> updatePassword(
+        int id,
+        [FromBody] UpdatePasswordDto newPassword
+    )
+    {
+        try
+        {
+            await _serviceUsuario.resetPassword(id, newPassword.NewPassword);
+            return Ok(new { message = "Contraseña reseteada" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "Everyone")]
+    [HttpPost("avatar/{id}")]
+    [Consumes("multipart/form-data")] // <-- ESTO ES CLAVE PARA SWAGGER
+    public async Task<IActionResult> updateAvatar(
+        [FromRoute] int id,
+        [FromForm] AvatarUploadDto avatar
+    )
+    {
+        if (id <= 0)
+            return BadRequest("El id debe ser mayor a 0");
+        try
+        {
+            if (!await _serviceUsuario.updateAvatar(id, avatar.avatar))
+                return BadRequest("No se pudo actualizar el avatar");
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
+        }
+    }
+
+    [AllowAnonymous]
+    [HttpGet("avatar/{id}")]
+    public async Task<IActionResult> getAvatar(int id)
+    {
+        if (id <= 0)
+            return BadRequest("El id debe ser mayor a 0");
+        try
+        {
+            string? rutaAvatar = await _serviceUsuario.getRutaAvatar(id);
+            if (rutaAvatar == null)
+                return NotFound("No se encontro el avatar");
+            var extension = Path.GetExtension(rutaAvatar).ToLowerInvariant();
+            string tipoMime = extension switch
+            {
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                _ => "application/octet-stream", // Tipo por defecto
+            };
+            return PhysicalFile(rutaAvatar, tipoMime);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensaje = ex.Message });
         }
     }
 }

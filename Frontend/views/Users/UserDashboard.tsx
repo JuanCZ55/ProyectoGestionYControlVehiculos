@@ -1,0 +1,566 @@
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { Modal, Button } from "react-bootstrap";
+import FormCard from "../../src/Components/Form/FormCard";
+import endpointsAPI from "../../src/Components/Routes/Enrouters";
+import { getUserFromToken } from "../../src/Utils/Auth";
+import Swal from "sweetalert2";
+import { type PersonaType, type UsuarioType } from "../../types/Usuario.schema";
+
+// Función auxiliar para formatear la fecha a YYYY-MM-DD (Requerido por <input type="date">)
+const formatDateForInput = (dateValue: Date | string | undefined) => {
+  if (!dateValue) return "";
+  const d = new Date(dateValue);
+  if (isNaN(d.getTime())) return "";
+  return d.toISOString().split("T")[0];
+};
+
+export function UserDashboard() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [userId, setUserId] = useState<number>(0);
+  const [usuario, setUsuario] = useState<UsuarioType | null>(null);
+
+  const [showPersonaModal, setShowPersonaModal] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<boolean>(false);
+  const [showGmailModal, setShowGmailModal] = useState(false);
+  // Estado editable para el formulario
+  const [persona, setPersona] = useState<PersonaType>({
+    idPersona: 0,
+    nombre: "",
+    apellido: "",
+    dni: 0,
+    fechaNac: new Date(),
+    estado: false,
+  });
+
+  useEffect(() => {
+    const user = getUserFromToken();
+    if (user?.sub != null) {
+      const parsed = parseInt(user.sub.toString());
+      setUserId(parsed);
+
+      if (parsed > 0) {
+        setAvatarUrl(
+          `${endpointsAPI.usuarios.getAvatar.action(parsed)}?t=${Date.now()}`,
+        );
+        setImageError(false);
+      }
+
+      const buscarUsuario = async () => {
+        try {
+          const responseFromApi = await fetch(
+            endpointsAPI.usuarios.getUsuario.action(parsed),
+            {
+              method: endpointsAPI.usuarios.getUsuario.method,
+            },
+          );
+          if (!responseFromApi.ok)
+            throw new Error(await responseFromApi.text());
+
+          const dataFromApi = await responseFromApi.json();
+          setUsuario(dataFromApi);
+
+          // Llenamos el estado editable con los datos recién traídos de la BD
+          if (dataFromApi.persona) {
+            setPersona(dataFromApi.persona);
+          }
+        } catch (error) {
+          console.error("Error al cargar usuario", error);
+        }
+      };
+      buscarUsuario();
+    }
+  }, []);
+
+  const handleClosePersonaModal = () => setShowPersonaModal(false);
+  const handleShowPersonaModal = () => setShowPersonaModal(true);
+  const handleCloseGmailModal = () => setShowGmailModal(false);
+  const handleShowGmailModal = () => setShowGmailModal(true);
+  const cardStyles = {
+    borderRadius: "15px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    border: "none",
+    height: "100%",
+  };
+
+  const headerStyles = {
+    backgroundColor: "#212529",
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center" as const,
+    borderTopLeftRadius: "15px",
+    borderTopRightRadius: "15px",
+    padding: "1rem",
+  };
+
+  const bodyStyles = {
+    backgroundColor: "#f8f9fa",
+    borderBottomLeftRadius: "15px",
+    borderBottomRightRadius: "15px",
+  };
+
+  const handleAvatarClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  const handleChangePassword = () => {
+    Swal.fire({
+      title: "Cambiar Contraseña",
+      html: `
+      <input type="password" id="pass1" class="swal2-input" placeholder="Nueva contraseña">
+      <input type="password" id="pass2" class="swal2-input" placeholder="Repetir contraseña">
+    `,
+      showCancelButton: true,
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar",
+      focusConfirm: false,
+
+      preConfirm: () => {
+        const pass1 = (document.getElementById("pass1") as HTMLInputElement)
+          .value;
+        const pass2 = (document.getElementById("pass2") as HTMLInputElement)
+          .value;
+
+        // EL PATRÓN REGEX MAGICO
+        const passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+        if (!pass1 || !pass2) {
+          Swal.showValidationMessage("Por favor completa ambos campos");
+          return false;
+        }
+
+        // Evaluamos la contraseña contra el patrón
+        if (!passwordRegex.test(pass1)) {
+          Swal.showValidationMessage(
+            "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo especial",
+          );
+          return false;
+        }
+
+        if (pass1 !== pass2) {
+          Swal.showValidationMessage("Las contraseñas no coinciden");
+          return false;
+        }
+
+        return pass1;
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const newPassword = result.value;
+
+        try {
+          const response = await fetch(
+            endpointsAPI.usuarios.cambiarPassword.action(userId),
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ newPassword: newPassword }),
+            },
+          );
+
+          if (!response.ok) {
+            const messageError = await response.text();
+            const errorMessage = JSON.parse(messageError);
+
+            if (errorMessage.message) {
+              throw new Error(errorMessage.message);
+            }
+            throw new Error(errorMessage);
+          }
+          if (response.status === 204) {
+            Swal.fire(
+              "¡Éxito!",
+              "Tu contraseña ha sido actualizada.",
+              "success",
+            );
+            return;
+          }
+          Swal.fire("¡Éxito!", "Tu contraseña ha sido actualizada.", "success");
+        } catch (error) {
+          Swal.fire(
+            "Error",
+            `No se pudo actualizar la contraseña. ${error}`,
+            "error",
+          );
+          console.log(error);
+        }
+      }
+    });
+  };
+  const handlePersonaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    // Manejo seguro para que la fecha no explote si se borra en el input
+    const finalValue =
+      type === "date"
+        ? value
+          ? new Date(value)
+          : new Date()
+        : name === "dni"
+          ? parseInt(value) || 0
+          : value;
+    setPersona({ ...persona, [name]: finalValue });
+  };
+
+  // Función lista para que agregues tu fetch PUT/POST para guardar la persona
+  const handleGuardarPersona = async () => {
+    try {
+      const fechaCruda = persona.fechaNac as any;
+      const fechaFormateada =
+        typeof fechaCruda === "string"
+          ? fechaCruda.split("T")[0]
+          : fechaCruda.toISOString().split("T")[0];
+      const payload = {
+        ...persona,
+        fechaNac: fechaFormateada, // "YYYY-MM-DD" estricto
+      };
+      const response = await fetch(
+        endpointsAPI.persona.actualizarPersona.action(persona.idPersona),
+        {
+          method: endpointsAPI.persona.actualizarPersona.method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+      if (!response.ok) {
+        let errorMessage = await response.text();
+        const errorJSON = JSON.parse(errorMessage);
+        if (errorJSON.message) {
+          errorMessage = errorJSON.message;
+        }
+        throw new Error(errorMessage);
+      }
+      // Si el fetch sale bien, cerramos el modal y avisamos
+      handleClosePersonaModal();
+      Swal.fire("Éxito", "Datos personales actualizados", "success");
+
+      // Opcional: Actualizar el estado visual del usuario
+      if (usuario) {
+        setUsuario({ ...usuario, persona: persona });
+      }
+    } catch (error) {
+      handleClosePersonaModal();
+      handleError(error);
+      setPersona(usuario!.persona!);
+    }
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (userId <= 0) {
+      Swal.fire(
+        "Espera",
+        "Cargando datos del usuario, intenta de nuevo.",
+        "warning",
+      );
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarUrl(previewUrl);
+    setImageError(false);
+
+    const formData = new FormData();
+    formData.append("Avatar", file);
+
+    try {
+      const response = await fetch(
+        endpointsAPI.usuarios.actualizarAvatar.action(userId),
+        {
+          method: endpointsAPI.usuarios.actualizarAvatar.method,
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("No se pudo subir la imagen " + response.status);
+      }
+
+      if (response.status === 204) {
+        handleSuccess("Imagen subida con éxito al servidor");
+        return;
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const handleError = (error: unknown) => {
+    Swal.fire({
+      title: "Ocurrió un error: ",
+      text: error instanceof Error ? error.message : "Error inesperado",
+      icon: "error",
+      confirmButtonText: "Aceptar",
+    });
+  };
+
+  const handleSuccess = (mensaje: string) => {
+    Swal.fire({
+      title: mensaje,
+      icon: "success",
+      confirmButtonText: "Aceptar",
+    });
+  };
+
+  return (
+    <div className="container mt-4">
+      {/* SECCIÓN DEL AVATAR */}
+      <div className="d-flex flex-column align-items-center justify-content-center mb-5">
+        <div
+          onClick={handleAvatarClick}
+          className="rounded-circle bg-dark d-flex justify-content-center align-items-center text-white mb-2 shadow-lg position-relative"
+          style={{
+            width: "150px",
+            height: "150px",
+            fontSize: "4rem",
+            border: "4px solid #fff",
+            cursor: "pointer",
+            overflow: "hidden",
+          }}
+          title="Haz clic para cambiar tu foto de perfil">
+          {avatarUrl && !imageError ? (
+            <img
+              src={avatarUrl}
+              alt="Avatar del usuario"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <i className="bi bi-person"></i>
+          )}
+        </div>
+        <h3 className="fw-bold mt-2">Mi Perfil</h3>
+        <input
+          type="file"
+          accept="image/png, image/jpeg, image/jpg"
+          style={{ display: "none" }}
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+      </div>
+
+      {/* SECCIÓN DE LAS TARJETAS */}
+      <div className="row justify-content-center g-4">
+        {/* CARD 1: DATOS DE LA PERSONA */}
+        <div className="col-12 col-md-5">
+          <FormCard
+            title="Datos de la Persona"
+            styleCard={cardStyles}
+            styleHeader={headerStyles}
+            styleBody={bodyStyles}>
+            <div className="d-flex flex-column justify-content-between h-100">
+              <ul
+                className="list-group list-group-flush mb-4 rounded"
+                style={{ overflow: "hidden" }}>
+                <li className="list-group-item bg-transparent">
+                  <strong>Nombre:</strong> {usuario?.persona?.nombre}
+                </li>
+                <li className="list-group-item bg-transparent">
+                  <strong>Apellido:</strong> {usuario?.persona?.apellido}
+                </li>
+                <li className="list-group-item bg-transparent">
+                  <strong>DNI:</strong> {usuario?.persona?.dni}
+                </li>
+                <li className="list-group-item bg-transparent border-bottom-0">
+                  <strong>Fecha de Nacimiento: </strong>
+                  {usuario?.persona?.fechaNac
+                    ? formatDateForInput(persona.fechaNac)
+                    : ""}
+                </li>
+              </ul>
+              <button
+                onClick={handleShowPersonaModal}
+                className="btn btn-outline-dark w-100 mt-auto rounded-pill fw-bold">
+                <i className="bi bi-pencil-square me-2"></i> Editar Persona
+              </button>
+            </div>
+          </FormCard>
+        </div>
+
+        {/* CARD 2: DATOS DEL USUARIO */}
+        <div className="col-12 col-md-5">
+          <FormCard
+            title="Datos del Usuario"
+            styleCard={cardStyles}
+            styleHeader={{ ...headerStyles, backgroundColor: "#0d6efd" }}
+            styleBody={bodyStyles}>
+            <div className="d-flex flex-column justify-content-between h-100">
+              <ul
+                className="list-group list-group-flush mb-4 rounded"
+                style={{ overflow: "hidden" }}>
+                <li
+                  className="list-group-item bg-transparent"
+                  onClick={handleShowGmailModal}
+                  style={{ cursor: "pointer" }}>
+                  <strong>Gmail:</strong> {usuario?.gmail}
+                </li>
+                <li className="list-group-item bg-transparent border-bottom-0">
+                  <strong>Rol:</strong> {usuario?.rol?.nombre}
+                </li>
+              </ul>
+              <Button
+                onClick={handleChangePassword}
+                className="btn btn-outline-primary w-100 mt-auto rounded-pill fw-bold">
+                <i className="bi bi-lock"></i> Cambiar Contraseña
+              </Button>
+            </div>
+          </FormCard>
+        </div>
+      </div>
+
+      {/* ================================================== */}
+      {/* MODAL DE EDICIÓN DE PERSONA CON DISEÑO BOOTSTRAP   */}
+      {/* ================================================== */}
+      <Modal
+        show={showPersonaModal}
+        onHide={handleClosePersonaModal}
+        centered
+        backdrop="static" // Evita que se cierre al hacer click afuera por accidente
+      >
+        <Modal.Header
+          closeButton
+          className="bg-dark text-white"
+          style={{
+            borderTopLeftRadius: "var(--bs-modal-border-radius)",
+            borderTopRightRadius: "var(--bs-modal-border-radius)",
+          }}>
+          <Modal.Title className="fs-5">
+            <i className="bi bi-pencil-square me-2"></i> Actualizar Datos
+            Personales
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="bg-light">
+          <div className="row g-3">
+            {/* Nombre */}
+            <div className="col-md-6">
+              <label className="form-label fw-bold text-secondary mb-1">
+                Nombre
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                name="nombre"
+                placeholder="Ej: Juan"
+                value={persona.nombre}
+                onChange={handlePersonaChange}
+              />
+            </div>
+
+            {/* Apellido */}
+            <div className="col-md-6">
+              <label className="form-label fw-bold text-secondary mb-1">
+                Apellido
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                name="apellido"
+                placeholder="Ej: Pérez"
+                value={persona.apellido}
+                onChange={handlePersonaChange}
+              />
+            </div>
+
+            {/* DNI */}
+            <div className="col-md-6">
+              <label className="form-label fw-bold text-secondary mb-1">
+                DNI
+              </label>
+              <input
+                type="number"
+                className="form-control"
+                name="dni"
+                placeholder="Sin puntos ni espacios"
+                value={persona.dni || ""} // Para que no muestre un 0 por defecto
+                onChange={handlePersonaChange}
+              />
+            </div>
+
+            {/* Fecha de Nacimiento */}
+            <div className="col-md-6">
+              <label className="form-label fw-bold text-secondary mb-1">
+                Fecha de Nacimiento
+              </label>
+              <input
+                type="date"
+                className="form-control"
+                name="fechaNac"
+                value={
+                  typeof (persona.fechaNac as any) === "string"
+                    ? (persona.fechaNac as any).split("T")[0]
+                    : (persona.fechaNac as any).toISOString().split("T")[0]
+                }
+                onChange={handlePersonaChange}
+              />
+            </div>
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer className="bg-light border-top-0">
+          <Button
+            variant="outline-secondary"
+            className="fw-bold rounded-pill"
+            onClick={handleClosePersonaModal}>
+            Cancelar
+          </Button>
+          <Button
+            variant="dark"
+            className="fw-bold rounded-pill px-4"
+            onClick={handleGuardarPersona}>
+            Guardar Cambios
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={showGmailModal}
+        onHide={handleCloseGmailModal}
+        centered
+        backdrop="static">
+        <Modal.Header
+          closeButton
+          className="bg-dark text-white"
+          style={{
+            borderTopLeftRadius: "var(--bs-modal-border-radius)",
+            borderTopRightRadius: "var(--bs-modal-border-radius)",
+          }}>
+          <Modal.Title className="fs-5">
+            <i className="bi bi-pencil-square me-2"></i> Actualizar Datos
+            Personales
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="bg-light">
+          <label className="form-label fw-bold text-secondary mb-1">
+            Gmail
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            name="gmail"
+            placeholder="Ej: Juan"
+            value={usuario?.gmail}
+            onChange={handlePersonaChange}
+          />
+        </Modal.Body>
+        <Modal.Footer className="bg-light border-top-0">
+          <Button
+            variant="outline-secondary"
+            className="fw-bold rounded-pill"
+            onClick={handleCloseGmailModal}>
+            Cancelar
+          </Button>
+          <Button
+            variant="dark"
+            className="fw-bold rounded-pill px-4"
+            onClick={handleGuardarPersona}>
+            Guardar Cambios
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  );
+}

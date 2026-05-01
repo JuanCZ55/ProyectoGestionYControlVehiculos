@@ -28,7 +28,7 @@ export default function TopNavBar() {
           <Nav.Link as={Link} to="/">
             <i className="bi bi-house-door me-2"></i> Inicio
           </Nav.Link>
-          <Nav.Link as={Link} to="/Profile">
+          <Nav.Link as={Link} to={endpointFront.usuarios.dashboard.action}>
             <i className="bi bi-person me-2"></i> Perfil
           </Nav.Link>
           <Nav.Link as={Link} to="/Notifications">

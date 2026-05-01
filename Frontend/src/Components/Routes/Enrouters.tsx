@@ -284,6 +284,32 @@ export const endpointsAPI = {
       action: (id: number) => `${API_ROUTE}/usuarios/reset/${id}`,
       method: "PUT",
     },
+    actualizarAvatar: {
+      action: (id: number) => `${API_ROUTE}/usuarios/avatar/${id}`,
+      method: "POST",
+    },
+    getAvatar: {
+      action: (id: number) => `${API_ROUTE}/usuarios/avatar/${id}`,
+      method: "GET",
+    },
+    getUsuario: {
+      action: (id: number) => `${API_ROUTE}/usuarios/${id}`,
+      method: "GET",
+    },
+    actualizarPersona: {
+      action: (id: number) => `${API_ROUTE}/personas/${id}`,
+      method: "PUT",
+    },
+    cambiarPassword: {
+      action: (id: number) => `${API_ROUTE}/usuarios/cambiarContrasena/${id}`,
+      method: "PUT",
+    },
+  },
+  persona: {
+    actualizarPersona: {
+      action: (id: number) => `${API_ROUTE}/personas/${id}`,
+      method: "PUT",
+    },
   },
 };
 //ENDPOINTS DEL FRONTEND
@@ -367,6 +393,8 @@ export const endpointFront = {
     gestion: { action: `/Usuarios` },
     nuevo: { action: `/Usuarios/Nuevo` },
     listar: { action: `/Usuarios/Listar` },
+    //actualizar: { action: `/Usuarios/Actualizar` },
+    dashboard: { action: `/Usuarios/Dashboard` },
   },
 };
 export default endpointsAPI;
