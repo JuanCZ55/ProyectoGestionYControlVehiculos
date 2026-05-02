@@ -11,8 +11,8 @@ import {
   Spinner,
 } from "react-bootstrap";
 import endpointsApi from "../../src/Components/Routes/Enrouters";
-// OJO: Verifica que esta ruta apunte correctamente a donde guardaste tu AuthContext
 import { useAuth } from "../../src/context/AuthContext";
+
 export default function Login() {
   const [gmail, setGmail] = useState("");
   const [contrasena, setContrasena] = useState("");
@@ -53,24 +53,38 @@ export default function Login() {
 
   return (
     <Container
+      fluid
       className="d-flex justify-content-center align-items-center"
-      style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
+      style={{ minHeight: "100vh", backgroundColor: "#1a1d20" }}>
+      {" "}
+      {/* Fondo unificado del sistema */}
       <Row className="w-100 justify-content-center">
         <Col xs={12} md={8} lg={5} xl={4}>
-          <Card className="shadow-lg border-0 rounded-4">
-            <Card.Body className="p-5">
+          <Card
+            className="shadow-lg border-0 rounded-4"
+            style={{ backgroundColor: "#212529" }}>
+            {" "}
+            {/* Color de tarjeta oscura */}
+            <Card.Body className="p-5 text-white">
               <div className="text-center mb-4">
-                <i
-                  className="bi bi-shield-lock text-primary"
-                  style={{ fontSize: "3rem" }}></i>
+                {/* Ícono con el mismo estilo de contenedor del Home */}
+                <div
+                  className="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                  style={{ width: "80px", height: "80px" }}>
+                  <i
+                    className="bi bi-shield-lock text-primary"
+                    style={{ fontSize: "2.5rem" }}></i>
+                </div>
                 <h2 className="fw-bold mt-2">ArgenCore</h2>
-                <p className="text-muted">
+                <p className="text-light" style={{ opacity: 0.7 }}>
                   Ingresa tus credenciales para continuar
                 </p>
               </div>
 
               {error && (
-                <Alert variant="danger" className="text-center">
+                <Alert
+                  variant="danger"
+                  className="text-center bg-danger bg-opacity-10 border-danger text-danger">
                   <i className="bi bi-exclamation-triangle-fill me-2"></i>
                   {error}
                 </Alert>
@@ -78,7 +92,7 @@ export default function Login() {
 
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label className="fw-semibold">
+                  <Form.Label className="fw-semibold text-light">
                     Correo Electrónico
                   </Form.Label>
                   <Form.Control
@@ -88,11 +102,15 @@ export default function Login() {
                     onChange={(e) => setGmail(e.target.value)}
                     required
                     size="lg"
+                    className="bg-dark text-white border-secondary" // Inputs oscuros
+                    style={{ colorScheme: "dark" }} // Mejora el autocompletado en navegadores
                   />
                 </Form.Group>
 
                 <Form.Group className="mb-4" controlId="formBasicPassword">
-                  <Form.Label className="fw-semibold">Contraseña</Form.Label>
+                  <Form.Label className="fw-semibold text-light">
+                    Contraseña
+                  </Form.Label>
                   <Form.Control
                     type="password"
                     placeholder="••••••••"
@@ -100,13 +118,15 @@ export default function Login() {
                     onChange={(e) => setContrasena(e.target.value)}
                     required
                     size="lg"
+                    className="bg-dark text-white border-secondary" // Inputs oscuros
+                    style={{ colorScheme: "dark" }}
                   />
                 </Form.Group>
 
                 <Button
                   variant="primary"
                   type="submit"
-                  className="w-100 fw-bold"
+                  className="w-100 fw-bold mt-2"
                   size="lg"
                   disabled={isSubmitting}>
                   {isSubmitting ? (

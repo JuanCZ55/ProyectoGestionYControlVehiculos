@@ -37,26 +37,35 @@ import { AgregarUsuario } from "../../views/Users/RegisterUsers";
 import UsersList from "../../views/Users/UsersList";
 import { UserDashboard } from "../../views/Users/UserDashboard";
 import ListaLogs from "../../views/Logs/ListaLogs";
+import Home from "../../views/home";
+
 const ProtectedLayout = () => {
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       <TopNavBar />
-      <Container fluid>
-        <Row>
+      <Container fluid className="flex-grow-1 d-flex p-0">
+        <Row className="flex-grow-1 g-0 w-100">
           <SideNavBar />
           <Col
             xs={12}
             md={9}
             lg={10}
-            className="p-4 bg-secondary"
-            style={{ minHeight: "100vh" }}>
-            <Outlet />
+            className="p-4 text-light d-flex flex-column"
+            style={{
+              backgroundColor: "#1a1d20", // ¡Aquí está el cambio de color clave!
+              minHeight: "calc(100vh - 56px)",
+              overflowY: "auto",
+            }}>
+            <div className="flex-grow-1">
+              <Outlet />
+            </div>
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
   );
 };
+
 export default function RoutesComponent() {
   return (
     <Routes>
@@ -67,18 +76,7 @@ export default function RoutesComponent() {
       />
       <Route element={ProtectedRoute({ allowedRoles: ["1", "2"] })}>
         <Route element={ProtectedLayout()}>
-          <Route
-            path="/"
-            element={
-              <>
-                <h1>
-                  Bienvenido al sistema de Gestión de vehículos de Eco Group
-                  S.R.L.
-                </h1>
-                <p>App con React y Bootstrap.</p>
-              </>
-            }
-          />
+          <Route path={endpointFront.home.action} element={<Home />} />
           <Route
             path={endpointFront.vehiculos.gestion.action}
             element={<VehiculosGestion />}

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 [Route("api/checklist")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerChecklistDiario : ControllerBase
 {
     private readonly ServiceChecklistDiario _serviceChecklistDiario;

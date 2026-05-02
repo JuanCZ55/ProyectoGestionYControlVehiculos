@@ -1,7 +1,21 @@
 .card-gestion {
-  box-shadow: 0 8px 32px 5px rgba(0, 0, 0, 1);
-  border-radius: 20px;
-  background: linear-gradient(135deg, #000000ff 0%, #8a8a8aff 100%);
-  color: white;
-  padding: 20px;
+  background-color: #212529 !important;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.card-gestion:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(13, 110, 253, 0.4) !important;
+}
+
+.custom-btn-wrapper button,
+.custom-btn-wrapper a {
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
 }

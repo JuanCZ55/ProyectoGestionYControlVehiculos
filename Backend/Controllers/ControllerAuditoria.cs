@@ -1,8 +1,10 @@
 using AutoMapper;
 using Backend.Models;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize(Policy = "RequireAdmin")]
 [Route("api/auditorias")]
 [ApiController]
 public class ControllerAuditoria : ControllerBase

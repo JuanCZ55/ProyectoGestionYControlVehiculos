@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 [Route("api/matafuegos")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerMatafuego : ControllerBase
 {
     private readonly ServiceMatafuego _serviceMatafuego;

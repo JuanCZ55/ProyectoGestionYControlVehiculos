@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/mantenimiento")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerService : ControllerBase
 {
     private readonly ServiceService _serviceService;

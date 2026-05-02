@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/registro-kilometraje")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerRegistroKilometraje : ControllerBase
 {
     private readonly ServiceRegistroKilometraje _serviceRegistroKilometraje;

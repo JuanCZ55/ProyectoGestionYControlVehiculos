@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/documentos")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerDocumento : ControllerBase
 {
     private readonly ServiceDocumento _serviceDocumento;

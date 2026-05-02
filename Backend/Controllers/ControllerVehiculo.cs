@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/vehiculos")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerVehiculo : ControllerBase
 {
     private readonly ServiceVehiculo _serviceVehiculo;

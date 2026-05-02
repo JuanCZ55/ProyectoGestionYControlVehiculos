@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 [Route("api/usuarios")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerUsuario : ControllerBase
 {
     private readonly ServiceUsuario _serviceUsuario;

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/neumaticos")]
 [ApiController]
-[Authorize]
+[Authorize(Policy = "Everyone")]
 public class ControllerNeumatico : ControllerBase
 {
     private readonly ServiceNeumatico _serviceNeumatico;

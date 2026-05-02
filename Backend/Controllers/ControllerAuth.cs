@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
@@ -15,6 +16,7 @@ public class ControllerAuth : ControllerBase
         _serviceAuditoria = serviceAuditoria;
     }
 
+    [Authorize(Policy = "RequireAdmin")]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {

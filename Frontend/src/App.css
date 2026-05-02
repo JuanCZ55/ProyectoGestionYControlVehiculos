@@ -1,4 +1,4 @@
-.accordion-dark .accordion-item,
+/* .accordion-dark .accordion-item,
 .accordion-dark .accordion-header,
 .accordion-dark .accordion-button,
 .accordion-dark .accordion-body {
@@ -14,4 +14,63 @@
 
 .accordion-dark .accordion-button:focus {
   box-shadow: none;
+} */
+/* =========================================
+   ESTILOS PARA EL SIDEBAR Y ACCORDION DARK
+   ========================================= */
+
+/* Limpiar el fondo blanco y bordes del acordeón */
+.accordion-dark .accordion-item {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* Estilo del botón principal del acordeón */
+.accordion-dark .accordion-button {
+  background-color: transparent !important;
+  color: #e9ecef !important;
+  box-shadow: none !important;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+}
+
+/* Efecto cuando pasas el mouse por el menú principal */
+.accordion-dark .accordion-button:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Efecto cuando el acordeón está abierto (activo) */
+.accordion-dark .accordion-button:not(.collapsed) {
+  background-color: rgba(
+    13,
+    110,
+    253,
+    0.15
+  ) !important; /* Un tono azulado muy suave */
+  color: #0d6efd !important; /* Texto primario */
+}
+
+/* Cambiar el color de la flechita del acordeón a blanco */
+.accordion-dark .accordion-button::after {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Estilo para los links internos (Gestión, Control, etc.) */
+.nav-link-custom {
+  color: #adb5bd !important;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 2px;
+  padding: 0.6rem 1rem;
+}
+
+/* Efecto hover en los sub-links */
+.nav-link-custom:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff !important;
+  transform: translateX(
+    5px
+  ); /* Se mueve un poquito a la derecha, queda muy pro */
 }

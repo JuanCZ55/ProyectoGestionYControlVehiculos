@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav } from "react-bootstrap";
+import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { endpointFront } from "./Routes/Enrouters";
 import { useAuth } from "../context/AuthContext";
@@ -14,31 +14,52 @@ export default function TopNavBar() {
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" className="px-3">
-      <Navbar.Brand href={endpointFront.home.action}>
-        Eco Group S.R.L.
-      </Navbar.Brand>
-      <Navbar.Toggle aria-controls="top-navbar-nav" />
-      <Navbar.Collapse id="top-navbar-nav">
-        <Nav className="me-auto"></Nav>
-        <Nav>
-          <Nav.Link as={Link} to="/Dashboard">
-            <i className="bi bi-clipboard-data me-2"></i> Dashboard
-          </Nav.Link>
-          <Nav.Link as={Link} to="/">
-            <i className="bi bi-house-door me-2"></i> Inicio
-          </Nav.Link>
-          <Nav.Link as={Link} to={endpointFront.usuarios.dashboard.action}>
-            <i className="bi bi-person me-2"></i> Perfil
-          </Nav.Link>
-          <Nav.Link as={Link} to="/Notifications">
-            <i className="bi bi-bell me-2"></i> Notificaciones
-          </Nav.Link>
-          <Nav.Link onClick={handleLogout} style={{ cursor: "pointer" }}>
-            <i className="bi bi-box-arrow-right me-2"></i> Salir
-          </Nav.Link>
-        </Nav>
-      </Navbar.Collapse>
+    // Agregamos shadow-sm y un borde inferior oscuro para separarlo del cuerpo
+    <Navbar
+      bg="dark"
+      variant="dark"
+      expand="lg"
+      className="px-3 border-bottom border-secondary shadow-sm">
+      <Container fluid>
+        <Navbar.Brand
+          as={Link}
+          to={endpointFront.home.action}
+          className="fw-bold d-flex align-items-center">
+          <i className="bi bi-shield-check text-primary me-2 fs-4"></i>
+          <span className="text-white tracking-wide">Eco Group S.R.L.</span>
+        </Navbar.Brand>
+
+        <Navbar.Toggle
+          aria-controls="top-navbar-nav"
+          className="border-0 shadow-none"
+        />
+
+        <Navbar.Collapse id="top-navbar-nav">
+          <Nav className="me-auto"></Nav>
+          <Nav className="gap-2">
+            {" "}
+            {/* gap-2 separa un poquito los botones */}
+            <Nav.Link
+              as={Link}
+              to="/"
+              className="d-flex align-items-center rounded px-3 transition-colors hover-bg-light">
+              <i className="bi bi-house-door me-2 text-primary"></i> Inicio
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to={endpointFront.usuarios.dashboard.action}
+              className="d-flex align-items-center rounded px-3">
+              <i className="bi bi-person me-2 text-primary"></i> Perfil
+            </Nav.Link>
+            <Nav.Link
+              onClick={handleLogout}
+              className="d-flex align-items-center rounded px-3 text-danger"
+              style={{ cursor: "pointer" }}>
+              <i className="bi bi-box-arrow-right me-2"></i> Salir
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
     </Navbar>
   );
 }
