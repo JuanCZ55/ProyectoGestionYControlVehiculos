@@ -26,6 +26,7 @@ export function UserDashboard() {
   const [showGmailModal, setShowGmailModal] = useState(false);
   const [newEmail, setNewEmail] = useState<string>("");
   const [validEmail, setValidEmail] = useState<boolean>(false);
+
   // Estado editable para el formulario
   const [persona, setPersona] = useState<PersonaType>({
     idPersona: 0,
@@ -35,6 +36,7 @@ export function UserDashboard() {
     fechaNac: new Date(),
     estado: false,
   });
+
   // 1. Agregamos un estado para controlar el mensaje de error visual
   const [gmailError, setGmailError] = useState<string>("");
 
@@ -58,6 +60,7 @@ export function UserDashboard() {
       setValidEmail(true);
     }
   };
+
   useEffect(() => {
     const user = getUserFromToken();
     if (user?.sub != null) {
@@ -101,27 +104,28 @@ export function UserDashboard() {
   const handleShowPersonaModal = () => setShowPersonaModal(true);
   const handleCloseGmailModal = () => setShowGmailModal(false);
   const handleShowGmailModal = () => setShowGmailModal(true);
+
+  // ESTILOS ADAPTADOS AL DARK MODE
   const cardStyles = {
     borderRadius: "15px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    border: "none",
+    boxShadow: "0 10px 20px rgba(0,0,0,0.3)",
+    border: "1px solid rgba(255, 255, 255, 0.05)",
+    backgroundColor: "#212529", // Fondo oscuro de tarjeta
     height: "100%",
   };
 
   const headerStyles = {
-    backgroundColor: "#212529",
+    backgroundColor: "transparent",
     color: "white",
     fontWeight: "bold",
     textAlign: "center" as const,
-    borderTopLeftRadius: "15px",
-    borderTopRightRadius: "15px",
-    padding: "1rem",
+    padding: "1.5rem 1rem 0.5rem",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
   };
 
   const bodyStyles = {
-    backgroundColor: "#f8f9fa",
-    borderBottomLeftRadius: "15px",
-    borderBottomRightRadius: "15px",
+    backgroundColor: "transparent",
+    color: "#e9ecef",
   };
 
   const handleAvatarClick = () => {
@@ -129,6 +133,7 @@ export function UserDashboard() {
       fileInputRef.current.click();
     }
   };
+
   const handleSubmitEmail = async () => {
     try {
       const response = await fetch(
@@ -159,6 +164,7 @@ export function UserDashboard() {
       handleError(error);
     }
   };
+
   const handleChangePassword = () => {
     Swal.fire({
       title: "Cambiar Contraseña",
@@ -244,6 +250,7 @@ export function UserDashboard() {
       }
     });
   };
+
   const handlePersonaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     // Manejo seguro para que la fecha no explote si se borra en el input
@@ -366,16 +373,22 @@ export function UserDashboard() {
       <div className="d-flex flex-column align-items-center justify-content-center mb-5">
         <div
           onClick={handleAvatarClick}
-          className="rounded-circle bg-dark d-flex justify-content-center align-items-center text-white mb-2 shadow-lg position-relative"
+          className="rounded-circle bg-dark d-flex justify-content-center align-items-center text-primary mb-2 position-relative"
           style={{
             width: "150px",
             height: "150px",
             fontSize: "4rem",
-            border: "4px solid #fff",
+            border: "4px solid rgba(13, 110, 253, 0.3)", // Borde azul sutil estilo premium
+            boxShadow: "0 0 20px rgba(13, 110, 253, 0.15)", // Resplandor azul
             cursor: "pointer",
             overflow: "hidden",
+            transition: "all 0.3s ease",
           }}
-          title="Haz clic para cambiar tu foto de perfil">
+          title="Haz clic para cambiar tu foto de perfil"
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "scale(1.05)")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
           {avatarUrl && !imageError ? (
             <img
               src={avatarUrl}
@@ -387,7 +400,7 @@ export function UserDashboard() {
             <i className="bi bi-person"></i>
           )}
         </div>
-        <h3 className="fw-bold mt-2">Mi Perfil</h3>
+        <h3 className="fw-bold mt-2 text-white">Mi Perfil</h3>
         <input
           type="file"
           accept="image/png, image/jpeg, image/jpg"
@@ -406,21 +419,24 @@ export function UserDashboard() {
             styleCard={cardStyles}
             styleHeader={headerStyles}
             styleBody={bodyStyles}>
-            <div className="d-flex flex-column justify-content-between h-100">
+            <div className="d-flex flex-column justify-content-between h-100 p-2">
               <ul
                 className="list-group list-group-flush mb-4 rounded"
                 style={{ overflow: "hidden" }}>
-                <li className="list-group-item bg-transparent">
-                  <strong>Nombre:</strong> {usuario?.persona?.nombre}
+                <li className="list-group-item bg-transparent text-light border-secondary">
+                  <strong className="text-white">Nombre:</strong>{" "}
+                  {usuario?.persona?.nombre}
                 </li>
-                <li className="list-group-item bg-transparent">
-                  <strong>Apellido:</strong> {usuario?.persona?.apellido}
+                <li className="list-group-item bg-transparent text-light border-secondary">
+                  <strong className="text-white">Apellido:</strong>{" "}
+                  {usuario?.persona?.apellido}
                 </li>
-                <li className="list-group-item bg-transparent">
-                  <strong>DNI:</strong> {usuario?.persona?.dni}
+                <li className="list-group-item bg-transparent text-light border-secondary">
+                  <strong className="text-white">DNI:</strong>{" "}
+                  {usuario?.persona?.dni}
                 </li>
-                <li className="list-group-item bg-transparent border-bottom-0">
-                  <strong>Fecha de Nacimiento: </strong>
+                <li className="list-group-item bg-transparent text-light border-bottom-0">
+                  <strong className="text-white">Fecha de Nacimiento: </strong>
                   {usuario?.persona?.fechaNac
                     ? formatDateForInput(persona.fechaNac)
                     : ""}
@@ -428,7 +444,7 @@ export function UserDashboard() {
               </ul>
               <button
                 onClick={handleShowPersonaModal}
-                className="btn btn-outline-dark w-100 mt-auto rounded-pill fw-bold">
+                className="btn btn-outline-primary w-100 mt-auto rounded-pill fw-bold">
                 <i className="bi bi-pencil-square me-2"></i> Editar Persona
               </button>
             </div>
@@ -440,27 +456,44 @@ export function UserDashboard() {
           <FormCard
             title="Datos del Usuario"
             styleCard={cardStyles}
-            styleHeader={{ ...headerStyles, backgroundColor: "#0d6efd" }}
+            styleHeader={headerStyles}
             styleBody={bodyStyles}>
-            <div className="d-flex flex-column justify-content-between h-100">
+            <div className="d-flex flex-column justify-content-between h-100 p-2">
               <ul
                 className="list-group list-group-flush mb-4 rounded"
                 style={{ overflow: "hidden" }}>
                 <li
-                  className="list-group-item bg-transparent"
+                  className="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center"
                   onClick={handleShowGmailModal}
-                  style={{ cursor: "pointer" }}>
-                  <strong>Gmail:</strong> {usuario?.gmail}
+                  style={{ cursor: "pointer", transition: "all 0.2s" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "rgba(255,255,255,0.05)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                  title="Haz clic para cambiar tu Gmail">
+                  <div>
+                    <strong className="text-white">Gmail:</strong>{" "}
+                    {usuario?.gmail}
+                  </div>
+                  <i
+                    className="bi bi-pencil fs-6 text-primary"
+                    style={{ opacity: 0.7 }}></i>
                 </li>
-                <li className="list-group-item bg-transparent border-bottom-0">
-                  <strong>Rol:</strong> {usuario?.rol?.nombre}
+                <li className="list-group-item bg-transparent text-light border-bottom-0">
+                  <strong className="text-white">Rol:</strong>{" "}
+                  <span className="badge bg-primary bg-opacity-25 text-primary border border-primary">
+                    {usuario?.rol?.nombre}
+                  </span>
                 </li>
               </ul>
               <Button
                 variant="outline-primary"
                 onClick={handleChangePassword}
                 className="btn btn-outline-primary w-100 mt-auto rounded-pill fw-bold">
-                <i className="bi bi-lock"></i> Cambiar Contraseña
+                <i className="bi bi-lock me-2"></i> Cambiar Contraseña
               </Button>
             </div>
           </FormCard>
@@ -468,37 +501,39 @@ export function UserDashboard() {
       </div>
 
       {/* ================================================== */}
-      {/* MODAL DE EDICIÓN DE PERSONA CON DISEÑO BOOTSTRAP   */}
+      {/* MODAL DE EDICIÓN DE PERSONA CON DISEÑO DARK MODE   */}
       {/* ================================================== */}
       <Modal
         show={showPersonaModal}
         onHide={handleClosePersonaModal}
         centered
-        backdrop="static" // Evita que se cierre al hacer click afuera por accidente
-      >
+        backdrop="static">
         <Modal.Header
           closeButton
-          className="bg-dark text-white"
+          closeVariant="white"
+          className="bg-dark text-white border-bottom border-secondary"
           style={{
             borderTopLeftRadius: "var(--bs-modal-border-radius)",
             borderTopRightRadius: "var(--bs-modal-border-radius)",
           }}>
           <Modal.Title className="fs-5">
-            <i className="bi bi-pencil-square me-2"></i> Actualizar Datos
-            Personales
+            <i className="bi bi-pencil-square text-primary me-2"></i> Actualizar
+            Datos Personales
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="bg-light">
+        <Modal.Body className="bg-dark text-white">
           <div className="row g-3">
             {/* Nombre */}
             <div className="col-md-6">
-              <label className="form-label fw-bold text-secondary mb-1">
+              <label
+                className="form-label fw-bold text-light mb-1"
+                style={{ opacity: 0.8 }}>
                 Nombre
               </label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control bg-dark text-white border-secondary"
                 name="nombre"
                 placeholder="Ej: Juan"
                 value={persona.nombre}
@@ -508,12 +543,14 @@ export function UserDashboard() {
 
             {/* Apellido */}
             <div className="col-md-6">
-              <label className="form-label fw-bold text-secondary mb-1">
+              <label
+                className="form-label fw-bold text-light mb-1"
+                style={{ opacity: 0.8 }}>
                 Apellido
               </label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control bg-dark text-white border-secondary"
                 name="apellido"
                 placeholder="Ej: Pérez"
                 value={persona.apellido}
@@ -523,27 +560,32 @@ export function UserDashboard() {
 
             {/* DNI */}
             <div className="col-md-6">
-              <label className="form-label fw-bold text-secondary mb-1">
+              <label
+                className="form-label fw-bold text-light mb-1"
+                style={{ opacity: 0.8 }}>
                 DNI
               </label>
               <input
                 type="number"
-                className="form-control"
+                className="form-control bg-dark text-white border-secondary"
                 name="dni"
                 placeholder="Sin puntos ni espacios"
-                value={persona.dni || ""} // Para que no muestre un 0 por defecto
+                value={persona.dni || ""}
                 onChange={handlePersonaChange}
               />
             </div>
 
             {/* Fecha de Nacimiento */}
             <div className="col-md-6">
-              <label className="form-label fw-bold text-secondary mb-1">
+              <label
+                className="form-label fw-bold text-light mb-1"
+                style={{ opacity: 0.8 }}>
                 Fecha de Nacimiento
               </label>
               <input
                 type="date"
-                className="form-control"
+                className="form-control bg-dark text-white border-secondary"
+                style={{ colorScheme: "dark" }} // Mágia para que el calendario nativo se vea oscuro
                 name="fechaNac"
                 value={
                   typeof (persona.fechaNac as any) === "string"
@@ -556,21 +598,25 @@ export function UserDashboard() {
           </div>
         </Modal.Body>
 
-        <Modal.Footer className="bg-light border-top-0">
+        <Modal.Footer className="bg-dark border-top border-secondary">
           <Button
             variant="outline-secondary"
-            className="fw-bold rounded-pill"
+            className="fw-bold rounded-pill text-light"
             onClick={handleClosePersonaModal}>
             Cancelar
           </Button>
           <Button
-            variant="dark"
+            variant="primary"
             className="fw-bold rounded-pill px-4"
             onClick={handleGuardarPersona}>
             Guardar Cambios
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* ================================================== */}
+      {/* MODAL DE EDICIÓN DE GMAIL CON DISEÑO DARK MODE     */}
+      {/* ================================================== */}
       <Modal
         show={showGmailModal}
         onHide={handleCloseGmailModal}
@@ -578,23 +624,27 @@ export function UserDashboard() {
         backdrop="static">
         <Modal.Header
           closeButton
-          className="bg-dark text-white"
+          closeVariant="white"
+          className="bg-dark text-white border-bottom border-secondary"
           style={{
             borderTopLeftRadius: "var(--bs-modal-border-radius)",
             borderTopRightRadius: "var(--bs-modal-border-radius)",
           }}>
           <Modal.Title className="fs-5">
-            <i className="bi bi-pencil-square me-2"></i> Actualizar Datos
-            Personales
+            <i className="bi bi-envelope text-primary me-2"></i> Actualizar
+            Gmail
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="bg-light">
-          <label className="form-label fw-bold text-secondary mb-1">
-            Gmail
+
+        <Modal.Body className="bg-dark text-white">
+          <label
+            className="form-label fw-bold text-light mb-1"
+            style={{ opacity: 0.8 }}>
+            Nuevo Correo Electrónico
           </label>
           <input
             type="email"
-            className={`form-control ${gmailError ? "is-invalid" : ""}`}
+            className={`form-control bg-dark text-white border-secondary ${gmailError ? "is-invalid border-danger" : ""}`}
             name="gmail"
             placeholder="Ej: correo@gmail.com"
             value={newEmail || ""}
@@ -602,15 +652,16 @@ export function UserDashboard() {
           />
           {gmailError && <div className="invalid-feedback">{gmailError}</div>}
         </Modal.Body>
-        <Modal.Footer className="bg-light border-top-0">
+
+        <Modal.Footer className="bg-dark border-top border-secondary">
           <Button
             variant="outline-secondary"
-            className="fw-bold rounded-pill"
+            className="fw-bold rounded-pill text-light"
             onClick={handleCloseGmailModal}>
             Cancelar
           </Button>
           <Button
-            variant="dark"
+            variant="primary"
             className="fw-bold rounded-pill px-4"
             onClick={handleSubmitEmail}
             disabled={!validEmail}>
