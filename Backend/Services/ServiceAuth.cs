@@ -69,14 +69,17 @@ public class ServiceAuth
             throw new KeyNotFoundException("Usuario no encontrado");
         if (!_servicePassword.VerifyPassword(dto.Contrasena!, usuario.Contrasena))
             throw new Exception("Contraseña incorrecta");
+
+        string token = _servicenToken.GenerateToken(usuario);
         await _serviceAuditoria.AddAsync(
             new CreateAuditoriaDto
             {
                 IdEntidad = usuario.IdUsuario,
                 Entidad = NombreClases.Usuario,
                 Accion = nameof(Login),
+                IdUsuario = usuario.IdUsuario,
             }
         );
-        return _servicenToken.GenerateToken(usuario);
+        return token;
     }
 }

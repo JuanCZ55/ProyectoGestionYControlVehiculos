@@ -23,16 +23,40 @@ namespace Backend.Services
         }
 
         // GET TODO AUDITORIAS
-        public async Task<PagedResponse<Auditoria>> GetAllAsync(int numeroPagina, int tamanoPagina)
+        public async Task<PagedResponse<AuditoriaDto>> GetAllAsync(
+            int numeroPagina,
+            int tamanoPagina
+        )
         {
             IQueryable<Auditoria> query = _context.Auditorias;
             int totalRegistrosAuditoria = await query.CountAsync();
             var auditorias = await query
+                .Include(u => u.Usuario)
                 .OrderBy(a => a.IdAuditoria)
                 .Skip((numeroPagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
+                .Select(a => new AuditoriaDto
+                {
+                    IdAuditoria = a.IdAuditoria,
+                    Fecha = a.Fecha,
+                    IdEntidad = a.IdEntidad,
+                    Entidad = a.Entidad,
+                    Accion = a.Accion,
+                    IdUsuario = a.IdUsuario,
+                    Usuario = new UsuarioDto
+                    {
+                        IdUsuario = a.Usuario!.IdUsuario,
+                        Gmail = a.Usuario.Gmail,
+                        AvatarUrl = a.Usuario.AvatarUrl,
+                        IdRol = a.Usuario.IdRol,
+                        Rol = a.Usuario.Rol,
+                        IdPersona = a.Usuario.IdPersona,
+                        Persona = a.Usuario.Persona,
+                        Estado = a.Usuario.Estado,
+                    },
+                })
                 .ToListAsync();
-            return new PagedResponse<Auditoria>(
+            return new PagedResponse<AuditoriaDto>(
                 auditorias,
                 totalRegistrosAuditoria,
                 numeroPagina,
@@ -52,7 +76,10 @@ namespace Backend.Services
             string? usuarioId = _httpContextAccessor
                 .HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)
                 ?.Value;
-            int usuarioIdParsed = usuarioId != null ? int.Parse(usuarioId) : 0;
+            int usuarioIdParsed =
+                usuarioId != null ? int.Parse(usuarioId)
+                : auditoria.IdUsuario != null ? auditoria.IdUsuario!.Value
+                : 0;
             Auditoria auditoriaNueva = new Auditoria(
                 auditoria.Entidad,
                 auditoria.IdEntidad,

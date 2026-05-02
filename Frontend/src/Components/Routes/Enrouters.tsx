@@ -315,6 +315,13 @@ export const endpointsAPI = {
       method: "PUT",
     },
   },
+  auditorias: {
+    listar: {
+      action: (nroPagina: number, tamanoPagina: number): string =>
+        `${API_ROUTE}/auditorias?numeroPagina=${nroPagina}&tamanoPagina=${tamanoPagina}`,
+      method: "GET",
+    },
+  },
 };
 //ENDPOINTS DEL FRONTEND
 export const endpointFront = {

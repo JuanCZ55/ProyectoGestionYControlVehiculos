@@ -23,7 +23,7 @@ public class ControllerAuditoria : ControllerBase
         [FromQuery] int tamanoPagina = 10
     )
     {
-        PagedResponse<Auditoria>? auditorias = await _serviceAuditoria.GetAllAsync(
+        PagedResponse<AuditoriaDto>? auditorias = await _serviceAuditoria.GetAllAsync(
             numeroPagina,
             tamanoPagina
         );

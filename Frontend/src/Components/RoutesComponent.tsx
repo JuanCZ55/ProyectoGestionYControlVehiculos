@@ -36,7 +36,7 @@ import Usuarios from "../../views/Usuarios";
 import { AgregarUsuario } from "../../views/Users/RegisterUsers";
 import UsersList from "../../views/Users/UsersList";
 import { UserDashboard } from "../../views/Users/UserDashboard";
-import { ListaLogs } from "../../views/Logs/ListaLogs";
+import ListaLogs from "../../views/Logs/ListaLogs";
 const ProtectedLayout = () => {
   return (
     <>
