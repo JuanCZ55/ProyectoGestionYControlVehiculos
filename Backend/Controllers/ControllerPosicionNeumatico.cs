@@ -10,13 +10,16 @@ using Microsoft.AspNetCore.Mvc;
 public class ControllerPosicionNeumatico : ControllerBase
 {
     private readonly ServicePosicionNeumatico _servicePosicionNeumatico;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
     public ControllerPosicionNeumatico(
         ServicePosicionNeumatico servicePosicionNeumatico,
+        ServiceAuditoria serviceAuditoria,
         IMapper mapper
     )
     {
+        _serviceAuditoria = serviceAuditoria;
         _servicePosicionNeumatico = servicePosicionNeumatico;
         this.mapper = mapper;
     }
@@ -55,6 +58,14 @@ public class ControllerPosicionNeumatico : ControllerBase
     {
         PosicionNeumatico posicionNeumatico = mapper.Map<PosicionNeumatico>(posicionNeumaticoDto);
         var newPosicion = await _servicePosicionNeumatico.AddAsync(posicionNeumatico);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newPosicion.IdPosicionNeumatico,
+                Entidad = NombreClases.PosicionNeumatico,
+                Accion = nameof(AddPosicionNeumatico),
+            }
+        );
         return CreatedAtAction(
             nameof(GetPosicionNeumaticoById),
             new { id = newPosicion.IdPosicionNeumatico },
@@ -80,6 +91,14 @@ public class ControllerPosicionNeumatico : ControllerBase
         try
         {
             await _servicePosicionNeumatico.UpdateAsync(id, posicionNeumaticoDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.PosicionNeumatico,
+                    Accion = nameof(UpdatePosicionNeumatico),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -97,6 +116,14 @@ public class ControllerPosicionNeumatico : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.PosicionNeumatico,
+                Accion = nameof(DeletePosicionNeumatico),
+            }
+        );
         return NoContent();
     }
 }

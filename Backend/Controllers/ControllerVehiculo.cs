@@ -10,11 +10,17 @@ using Microsoft.AspNetCore.Mvc;
 public class ControllerVehiculo : ControllerBase
 {
     private readonly ServiceVehiculo _serviceVehiculo;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
-    public ControllerVehiculo(ServiceVehiculo serviceVehiculo, IMapper mapper)
+    public ControllerVehiculo(
+        ServiceVehiculo serviceVehiculo,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceVehiculo = serviceVehiculo;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -54,6 +60,14 @@ public class ControllerVehiculo : ControllerBase
         try
         {
             var newVehiculo = await _serviceVehiculo.AddAsync(vehiculo);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = newVehiculo.IdVehiculo,
+                    Entidad = NombreClases.Vehiculo,
+                    Accion = nameof(CreateVehiculo),
+                }
+            );
             return CreatedAtAction(
                 nameof(GetVehiculoById),
                 new { id = newVehiculo.IdVehiculo },
@@ -83,6 +97,14 @@ public class ControllerVehiculo : ControllerBase
         try
         {
             await _serviceVehiculo.UpdateAsync(id, vehiculoDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Vehiculo,
+                    Accion = nameof(UpdateVehiculo),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -104,6 +126,14 @@ public class ControllerVehiculo : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Vehiculo,
+                Accion = nameof(DeleteVehiculo),
+            }
+        );
         return NoContent();
     }
 
@@ -116,6 +146,14 @@ public class ControllerVehiculo : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Vehiculo,
+                Accion = nameof(SoftDeleteVehiculo),
+            }
+        );
         return NoContent();
     }
 
@@ -128,6 +166,14 @@ public class ControllerVehiculo : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Vehiculo,
+                Accion = nameof(RestoreVehiculo),
+            }
+        );
         return NoContent();
     }
 
@@ -161,6 +207,14 @@ public class ControllerVehiculo : ControllerBase
         try
         {
             await _serviceVehiculo.AsignarMatafuegoAVehiculo(idMatafuego, idVehiculo);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = idVehiculo,
+                    Entidad = NombreClases.Vehiculo,
+                    Accion = nameof(AsignarMatafuegoAVehiculo),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)

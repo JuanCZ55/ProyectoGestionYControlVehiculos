@@ -11,10 +11,16 @@ public class ControllerNeumatico : ControllerBase
 {
     private readonly ServiceNeumatico _serviceNeumatico;
     private readonly IMapper mapper;
+    private readonly ServiceAuditoria _serviceAuditoria;
 
-    public ControllerNeumatico(ServiceNeumatico serviceNeumatico, IMapper mapper)
+    public ControllerNeumatico(
+        ServiceNeumatico serviceNeumatico,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceNeumatico = serviceNeumatico;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -81,6 +87,14 @@ public class ControllerNeumatico : ControllerBase
             neumatico.FechaColocacion = null;
 
         var newNeumatico = await _serviceNeumatico.AddAsync(neumatico);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newNeumatico.IdNeumatico,
+                Entidad = NombreClases.Neumatico,
+                Accion = nameof(AddNeumatico),
+            }
+        );
         return CreatedAtAction(
             nameof(GetNeumaticoById),
             new { id = newNeumatico.IdNeumatico },
@@ -98,6 +112,14 @@ public class ControllerNeumatico : ControllerBase
             {
                 return BadRequest("No se pudo asignar el neumatico");
             }
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = idNeumatico,
+                    Entidad = NombreClases.Neumatico,
+                    Accion = nameof(AsignarNeumatico),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -116,6 +138,14 @@ public class ControllerNeumatico : ControllerBase
             {
                 return BadRequest("No se pudo borrar la asignacion");
             }
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = idNeumatico,
+                    Entidad = NombreClases.Neumatico,
+                    Accion = nameof(BorrarAsignacion),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -141,6 +171,14 @@ public class ControllerNeumatico : ControllerBase
         try
         {
             await _serviceNeumatico.UpdateAsync(id, neumaticoDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Neumatico,
+                    Accion = nameof(UpdateNeumatico),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -158,6 +196,14 @@ public class ControllerNeumatico : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Neumatico,
+                Accion = nameof(DeleteNeumatico),
+            }
+        );
         return NoContent();
     }
 
@@ -170,6 +216,14 @@ public class ControllerNeumatico : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Neumatico,
+                Accion = nameof(SoftDeleteNeumatico),
+            }
+        );
         return NoContent();
     }
 
@@ -182,6 +236,14 @@ public class ControllerNeumatico : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Neumatico,
+                Accion = nameof(RestoreNeumatico),
+            }
+        );
         return NoContent();
     }
 }

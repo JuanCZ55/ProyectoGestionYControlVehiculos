@@ -36,6 +36,7 @@ import Usuarios from "../../views/Usuarios";
 import { AgregarUsuario } from "../../views/Users/RegisterUsers";
 import UsersList from "../../views/Users/UsersList";
 import { UserDashboard } from "../../views/Users/UserDashboard";
+import { ListaLogs } from "../../views/Logs/ListaLogs";
 const ProtectedLayout = () => {
   return (
     <>
@@ -198,6 +199,10 @@ export default function RoutesComponent() {
           <Route
             path={endpointFront.usuarios.gestion.action}
             element={<Usuarios />}
+          />
+          <Route
+            path={endpointFront.logs.listar.action}
+            element={<ListaLogs />}
           />
         </Route>
       </Route>

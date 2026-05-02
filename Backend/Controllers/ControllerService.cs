@@ -10,11 +10,17 @@ using Microsoft.AspNetCore.Mvc;
 public class ControllerService : ControllerBase
 {
     private readonly ServiceService _serviceService;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
-    public ControllerService(ServiceService serviceService, IMapper mapper)
+    public ControllerService(
+        ServiceService serviceService,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceService = serviceService;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -50,6 +56,14 @@ public class ControllerService : ControllerBase
     {
         Service service = mapper.Map<Service>(serviceDto);
         var newService = await _serviceService.AddAsync(service);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newService.IdService,
+                Entidad = NombreClases.Service,
+                Accion = nameof(CreateService),
+            }
+        );
         return CreatedAtAction(
             nameof(GetServiceById),
             new { id = newService.IdService },
@@ -71,6 +85,14 @@ public class ControllerService : ControllerBase
         try
         {
             await _serviceService.UpdateAsync(id, serviceDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Service,
+                    Accion = nameof(UpdateService),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -88,6 +110,14 @@ public class ControllerService : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Service,
+                Accion = nameof(DeleteService),
+            }
+        );
         return NoContent();
     }
 
@@ -100,6 +130,14 @@ public class ControllerService : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Service,
+                Accion = nameof(SoftDeleteService),
+            }
+        );
         return NoContent();
     }
 
@@ -112,6 +150,14 @@ public class ControllerService : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Service,
+                Accion = nameof(RestoreService),
+            }
+        );
         return NoContent();
     }
 

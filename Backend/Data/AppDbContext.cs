@@ -1,10 +1,19 @@
+using System.Security.Claims;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options,
+        IHttpContextAccessor httpContextAccessor
+    )
+        : base(options)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
 
     public DbSet<Auditoria> Auditorias { get; set; }
     public DbSet<ChecklistDiario> ChecklistsDiarios { get; set; }

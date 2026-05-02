@@ -11,16 +11,19 @@ public class ControllerRegistroKilometraje : ControllerBase
 {
     private readonly ServiceRegistroKilometraje _serviceRegistroKilometraje;
     private readonly ServiceVehiculo _serviceVehiculo;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
     public ControllerRegistroKilometraje(
         ServiceRegistroKilometraje serviceRegistroKilometraje,
         ServiceVehiculo serviceVehiculo,
+        ServiceAuditoria serviceAuditoria,
         IMapper mapper
     )
     {
         _serviceRegistroKilometraje = serviceRegistroKilometraje;
         _serviceVehiculo = serviceVehiculo;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -77,6 +80,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         try
         {
             var newRegistro = await _serviceRegistroKilometraje.AddAsync(registroKilometraje);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = newRegistro.IdRegistroKilometraje,
+                    Entidad = NombreClases.RegistroKilometraje,
+                    Accion = nameof(AddRegistroKilometraje),
+                }
+            );
             return CreatedAtAction(
                 nameof(GetRegistroKilometrajeById),
                 new { id = newRegistro.IdRegistroKilometraje },
@@ -120,6 +131,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         try
         {
             await _serviceRegistroKilometraje.UpdateAsync(id, updateRegistroDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.RegistroKilometraje,
+                    Accion = nameof(UpdateRegistroKilometraje),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -141,6 +160,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.RegistroKilometraje,
+                Accion = nameof(DeleteRegistroKilometraje),
+            }
+        );
         return NoContent();
     }
 
@@ -153,6 +180,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.RegistroKilometraje,
+                Accion = nameof(SoftDeleteRegistroKilometraje),
+            }
+        );
         return NoContent();
     }
 
@@ -165,6 +200,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.RegistroKilometraje,
+                Accion = nameof(RestoreRegistroKilometraje),
+            }
+        );
         return NoContent();
     }
 

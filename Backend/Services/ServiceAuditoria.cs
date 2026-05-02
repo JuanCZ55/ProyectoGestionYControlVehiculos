@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +9,17 @@ namespace Backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IMapper mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ServiceAuditoria(AppDbContext context, IMapper mapper)
+        public ServiceAuditoria(
+            AppDbContext context,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor
+        )
         {
             _context = context;
             this.mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // GET TODO AUDITORIAS
@@ -40,11 +47,21 @@ namespace Backend.Services
         }
 
         // NUEVA AUDITORIA
-        public async Task<Auditoria> AddAsync(Auditoria auditoria)
+        public async Task<Auditoria> AddAsync(CreateAuditoriaDto auditoria)
         {
-            _context.Auditorias.Add(auditoria);
+            string? usuarioId = _httpContextAccessor
+                .HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)
+                ?.Value;
+            int usuarioIdParsed = usuarioId != null ? int.Parse(usuarioId) : 0;
+            Auditoria auditoriaNueva = new Auditoria(
+                auditoria.Entidad,
+                auditoria.IdEntidad,
+                auditoria.Accion,
+                usuarioIdParsed
+            );
+            _context.Auditorias.Add(auditoriaNueva);
             await _context.SaveChangesAsync();
-            return auditoria;
+            return auditoriaNueva;
         }
 
         // UPDATE AUDITORIA

@@ -400,5 +400,8 @@ export const endpointFront = {
     //actualizar: { action: `/Usuarios/Actualizar` },
     dashboard: { action: `/Usuarios/Dashboard` },
   },
+  logs: {
+    listar: { action: `/Logs/Listar` },
+  },
 };
 export default endpointsAPI;

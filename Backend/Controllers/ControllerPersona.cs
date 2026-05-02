@@ -11,10 +11,16 @@ public class ControllerPersona : ControllerBase
 {
     private readonly ServicePersona _servicePersona;
     private readonly IMapper mapper;
+    private readonly ServiceAuditoria _serviceAuditoria;
 
-    public ControllerPersona(ServicePersona servicePersona, IMapper mapper)
+    public ControllerPersona(
+        ServicePersona servicePersona,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _servicePersona = servicePersona;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -52,6 +58,14 @@ public class ControllerPersona : ControllerBase
         try
         {
             var newPersona = await _servicePersona.AddAsync(persona);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = newPersona.IdPersona,
+                    Entidad = NombreClases.Persona,
+                    Accion = nameof(AddPersona),
+                }
+            );
             return CreatedAtAction(
                 nameof(GetPersonaById),
                 new { id = newPersona.IdPersona },
@@ -78,6 +92,14 @@ public class ControllerPersona : ControllerBase
         try
         {
             await _servicePersona.UpdateAsync(id, personaDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Persona,
+                    Accion = nameof(UpdatePersona),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -99,7 +121,14 @@ public class ControllerPersona : ControllerBase
         {
             return NotFound();
         }
-
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Persona,
+                Accion = nameof(DeletePersona),
+            }
+        );
         return NoContent();
     }
 
@@ -112,7 +141,14 @@ public class ControllerPersona : ControllerBase
         {
             return NotFound();
         }
-
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Persona,
+                Accion = nameof(SoftDeletePersona),
+            }
+        );
         return NoContent();
     }
 
@@ -125,7 +161,14 @@ public class ControllerPersona : ControllerBase
         {
             return NotFound();
         }
-
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Persona,
+                Accion = nameof(RestorePersona),
+            }
+        );
         return NoContent();
     }
 }

@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 public class ControllerRol : ControllerBase
 {
     private readonly ServiceRol _serviceRol;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
-    public ControllerRol(ServiceRol serviceRol, IMapper mapper)
+    public ControllerRol(ServiceRol serviceRol, IMapper mapper, ServiceAuditoria serviceAuditoria)
     {
         _serviceRol = serviceRol;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -47,6 +49,14 @@ public class ControllerRol : ControllerBase
     {
         Rol rol = mapper.Map<Rol>(rolDto);
         var newRol = await _serviceRol.AddAsync(rol);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newRol.IdRol,
+                Entidad = NombreClases.Rol,
+                Accion = nameof(CreateRol),
+            }
+        );
         return CreatedAtAction(nameof(GetRolById), new { id = newRol.IdRol }, newRol);
     }
 
@@ -64,6 +74,14 @@ public class ControllerRol : ControllerBase
         try
         {
             await _serviceRol.UpdateAsync(id, rolDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Rol,
+                    Accion = nameof(UpdateRol),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -81,6 +99,14 @@ public class ControllerRol : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Rol,
+                Accion = nameof(DeleteRol),
+            }
+        );
         return NoContent();
     }
 
@@ -93,6 +119,14 @@ public class ControllerRol : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Rol,
+                Accion = nameof(SoftDeleteRol),
+            }
+        );
         return NoContent();
     }
 
@@ -105,6 +139,14 @@ public class ControllerRol : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Rol,
+                Accion = nameof(RestoreRol),
+            }
+        );
         return NoContent();
     }
 }

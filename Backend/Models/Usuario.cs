@@ -32,7 +32,7 @@ namespace Backend.Models
         [ForeignKey("Persona")]
         public int IdPersona { get; set; } = idPersona;
         public Persona? Persona { get; set; } = null!;
-        public Auditoria? Auditoria { get; set; }
+        public List<Auditoria>? Auditoria { get; set; }
 
         public List<MensajeChat>? MensajeChat { get; set; }
         public bool Estado { get; set; } = estado;

@@ -10,6 +10,7 @@ public class ServiceAuth
     private readonly IMapper _mapper;
     private readonly ServicePassword _servicePassword;
     private readonly ServicenToken _servicenToken;
+    private readonly ServiceAuditoria _serviceAuditoria;
 
     public ServiceAuth(
         ServicePersona servicePersona,
@@ -17,7 +18,8 @@ public class ServiceAuth
         AppDbContext context,
         IMapper mapper,
         ServicePassword servicePassword,
-        ServicenToken servicenToken
+        ServicenToken servicenToken,
+        ServiceAuditoria serviceAuditoria
     )
     {
         _servicePersona = servicePersona;
@@ -26,9 +28,10 @@ public class ServiceAuth
         _mapper = mapper;
         _servicePassword = servicePassword;
         _servicenToken = servicenToken;
+        _serviceAuditoria = serviceAuditoria;
     }
 
-    public async Task<bool> Register(RegisterDto dto)
+    public async Task<Usuario?> Register(RegisterDto dto)
     {
         if (await _serviceUsuario.getUsuarioByEmailAsync(dto.Gmail!) is not null)
             throw new Exception("El correo ya esta registrado");
@@ -50,7 +53,7 @@ public class ServiceAuth
             if (userCreated is null)
                 throw new Exception("Error al registrar usuario");
             await transaction.CommitAsync();
-            return true;
+            return userCreated;
         }
         catch (Exception)
         {
@@ -66,6 +69,14 @@ public class ServiceAuth
             throw new KeyNotFoundException("Usuario no encontrado");
         if (!_servicePassword.VerifyPassword(dto.Contrasena!, usuario.Contrasena))
             throw new Exception("Contraseña incorrecta");
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = usuario.IdUsuario,
+                Entidad = NombreClases.Usuario,
+                Accion = nameof(Login),
+            }
+        );
         return _servicenToken.GenerateToken(usuario);
     }
 }

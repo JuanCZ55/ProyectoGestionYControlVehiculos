@@ -12,11 +12,17 @@ public class ControllerChecklistDiario : ControllerBase
 {
     private readonly ServiceChecklistDiario _serviceChecklistDiario;
     private readonly IMapper mapper;
+    private readonly ServiceAuditoria _serviceAuditoria;
 
-    public ControllerChecklistDiario(ServiceChecklistDiario serviceChecklistDiario, IMapper mapper)
+    public ControllerChecklistDiario(
+        ServiceChecklistDiario serviceChecklistDiario,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceChecklistDiario = serviceChecklistDiario;
         this.mapper = mapper;
+        _serviceAuditoria = serviceAuditoria;
     }
 
     // GET TODOS LOS CHECKLISTS DIARIOS
@@ -53,6 +59,14 @@ public class ControllerChecklistDiario : ControllerBase
     {
         ChecklistDiario checklist = mapper.Map<ChecklistDiario>(checklistDto);
         var newChecklist = await _serviceChecklistDiario.AddAsync(checklist);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newChecklist.IdChecklistDiario,
+                Entidad = NombreClases.ChecklistDiario,
+                Accion = nameof(AddChecklistDiario),
+            }
+        );
         return CreatedAtAction(
             nameof(GetChecklistDiarioById),
             new { id = newChecklist.IdChecklistDiario },
@@ -74,6 +88,14 @@ public class ControllerChecklistDiario : ControllerBase
         try
         {
             await _serviceChecklistDiario.UpdateAsync(checklistDto, id);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.ChecklistDiario,
+                    Accion = nameof(UpdateChecklistDiario),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException)
@@ -92,6 +114,14 @@ public class ControllerChecklistDiario : ControllerBase
         {
             if (await _serviceChecklistDiario.DeleteAsync(id) == false)
                 return NotFound("ChecklistDiario no encontrado con id: " + id);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.ChecklistDiario,
+                    Accion = nameof(DeleteChecklistDiario),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -110,6 +140,14 @@ public class ControllerChecklistDiario : ControllerBase
         {
             if (await _serviceChecklistDiario.SoftDeleteAsync(id) == false)
                 return NotFound("ChecklistDiario no actualizado con id: " + id);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.ChecklistDiario,
+                    Accion = nameof(SoftDeleteChecklistDiario),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -128,6 +166,14 @@ public class ControllerChecklistDiario : ControllerBase
         {
             if (await _serviceChecklistDiario.RestoreAsync(id) == false)
                 return NotFound("ChecklistDiario no actualizado con id: " + id);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.ChecklistDiario,
+                    Accion = nameof(RestoreChecklistDiario),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)

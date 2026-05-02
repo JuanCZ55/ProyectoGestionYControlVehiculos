@@ -1,3 +1,5 @@
+using Backend.Models;
+using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
@@ -5,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 public class ControllerAuth : ControllerBase
 {
     private readonly ServiceAuth _serviceAuth;
+    private readonly ServiceAuditoria _serviceAuditoria;
 
-    public ControllerAuth(ServiceAuth serviceAuth)
+    public ControllerAuth(ServiceAuth serviceAuth, ServiceAuditoria serviceAuditoria)
     {
         _serviceAuth = serviceAuth;
+        _serviceAuditoria = serviceAuditoria;
     }
 
     [HttpPost("register")]
@@ -16,7 +20,17 @@ public class ControllerAuth : ControllerBase
     {
         try
         {
-            await _serviceAuth.Register(dto);
+            Usuario? usuario = await _serviceAuth.Register(dto);
+            if (usuario is null)
+                return BadRequest("Error al registrar usuario");
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = usuario.IdUsuario,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(Register),
+                }
+            );
             return Ok(new { message = "Registro exitoso" });
         }
         catch (InvalidOperationException ex)

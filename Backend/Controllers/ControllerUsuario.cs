@@ -14,12 +14,19 @@ public class ControllerUsuario : ControllerBase
 {
     private readonly ServiceUsuario _serviceUsuario;
     private readonly ServiceRol _serviceRol;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
-    public ControllerUsuario(ServiceUsuario serviceUsuario, IMapper mapper, ServiceRol serviceRol)
+    public ControllerUsuario(
+        ServiceUsuario serviceUsuario,
+        IMapper mapper,
+        ServiceRol serviceRol,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceUsuario = serviceUsuario;
         _serviceRol = serviceRol;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -35,6 +42,7 @@ public class ControllerUsuario : ControllerBase
             numeroPagina,
             tamanoPagina
         );
+
         return Ok(usuarios);
     }
 
@@ -60,6 +68,14 @@ public class ControllerUsuario : ControllerBase
         try
         {
             var newUsuario = await _serviceUsuario.AddAsync(usu);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = newUsuario.IdUsuario,
+                    Entidad = NombreClases.Usuario,
+                    Accion = AccionAuditoria.Insert,
+                }
+            );
             return CreatedAtAction(
                 nameof(GetUsuarioById),
                 new { id = newUsuario.IdUsuario },
@@ -87,6 +103,14 @@ public class ControllerUsuario : ControllerBase
         try
         {
             await _serviceUsuario.UpdateAsync(id, usuarioDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(UpdateUsuario),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -109,6 +133,14 @@ public class ControllerUsuario : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Usuario,
+                Accion = nameof(DeleteUsuario),
+            }
+        );
         return NoContent();
     }
 
@@ -122,6 +154,14 @@ public class ControllerUsuario : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Usuario,
+                Accion = nameof(SoftDeleteUsuario),
+            }
+        );
         return NoContent();
     }
 
@@ -135,6 +175,14 @@ public class ControllerUsuario : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Usuario,
+                Accion = nameof(RestoreUsuario),
+            }
+        );
         return NoContent();
     }
 
@@ -161,6 +209,14 @@ public class ControllerUsuario : ControllerBase
                 return NotFound($"Rol con id {usuarioFinded.IdRol} no encontrado");
             }
             var rol = new { idRol = usuarioFinded.IdRol, nombre = rolFinded.Nombre };
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(UpdateRolUsuario),
+                }
+            );
             return Ok(rol);
         }
         catch (KeyNotFoundException ex)
@@ -180,6 +236,14 @@ public class ControllerUsuario : ControllerBase
         try
         {
             await _serviceUsuario.resetPassword(id, "Reset123456!");
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(ResetPassword),
+                }
+            );
             return Ok(new { message = "Contraseña reseteada: Reset123456!" });
         }
         catch (KeyNotFoundException ex)
@@ -202,6 +266,14 @@ public class ControllerUsuario : ControllerBase
         try
         {
             await _serviceUsuario.resetPassword(id, newPassword.NewPassword);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(updatePassword),
+                }
+            );
             return Ok(new { message = "Contraseña reseteada" });
         }
         catch (KeyNotFoundException ex)
@@ -221,6 +293,14 @@ public class ControllerUsuario : ControllerBase
         try
         {
             await _serviceUsuario.updateEmail(id, emailDto.Gmail!);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(updateEmail),
+                }
+            );
             return Ok("Email actualizado");
         }
         catch (KeyNotFoundException ex)
@@ -235,7 +315,7 @@ public class ControllerUsuario : ControllerBase
 
     [Authorize(Policy = "Everyone")]
     [HttpPost("avatar/{id}")]
-    [Consumes("multipart/form-data")] // <-- ESTO ES CLAVE PARA SWAGGER
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> updateAvatar(
         [FromRoute] int id,
         [FromForm] AvatarUploadDto avatar
@@ -247,6 +327,14 @@ public class ControllerUsuario : ControllerBase
         {
             if (!await _serviceUsuario.updateAvatar(id, avatar.avatar))
                 return BadRequest("No se pudo actualizar el avatar");
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Usuario,
+                    Accion = nameof(updateAvatar),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)

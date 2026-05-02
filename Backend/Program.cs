@@ -59,6 +59,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 //En los endopints de la API agregar [Authorize(Policy = "RequireAdmin")]
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

@@ -10,11 +10,17 @@ using Microsoft.AspNetCore.Mvc;
 public class ControllerDocumento : ControllerBase
 {
     private readonly ServiceDocumento _serviceDocumento;
+    private readonly ServiceAuditoria _serviceAuditoria;
     private readonly IMapper mapper;
 
-    public ControllerDocumento(ServiceDocumento serviceDocumento, IMapper mapper)
+    public ControllerDocumento(
+        ServiceDocumento serviceDocumento,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceDocumento = serviceDocumento;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -84,7 +90,14 @@ public class ControllerDocumento : ControllerBase
             tipoDoc,
             codigoEntidad
         );
-
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newDocumento.IdDocumento,
+                Entidad = NombreClases.Documento,
+                Accion = nameof(AddDocumento),
+            }
+        );
         return CreatedAtAction(
             nameof(GetDocumentoById),
             new { id = newDocumento.IdDocumento },
@@ -107,6 +120,14 @@ public class ControllerDocumento : ControllerBase
         try
         {
             await _serviceDocumento.UpdateAsync(id, documentoDto);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Documento,
+                    Accion = nameof(UpdateDocumento),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -122,6 +143,14 @@ public class ControllerDocumento : ControllerBase
         try
         {
             bool deleted = await _serviceDocumento.DeleteAsync(id);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Documento,
+                    Accion = nameof(DeleteDocumento),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -139,6 +168,14 @@ public class ControllerDocumento : ControllerBase
         {
             return NotFound("Documento no actualizado con id: " + id);
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Documento,
+                Accion = nameof(SoftDeleteDocumento),
+            }
+        );
         return NoContent();
     }
 
@@ -151,6 +188,14 @@ public class ControllerDocumento : ControllerBase
         {
             return NotFound("Documento no actualizado con id: " + id);
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Documento,
+                Accion = nameof(RestoreDocumento),
+            }
+        );
         return NoContent();
     }
 

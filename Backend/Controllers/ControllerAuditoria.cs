@@ -43,17 +43,17 @@ public class ControllerAuditoria : ControllerBase
     }
 
     // POST NUEVA AUDITORIA
-    [HttpPost]
-    public async Task<IActionResult> AddAuditoria([FromBody] CreateAuditoriaDto auditoriaDto)
-    {
-        Auditoria auditoria = mapper.Map<Auditoria>(auditoriaDto);
-        Auditoria newAuditoria = await _serviceAuditoria.AddAsync(auditoria);
-        return CreatedAtAction(
-            nameof(GetAuditoriaById),
-            new { id = newAuditoria.IdAuditoria },
-            newAuditoria
-        );
-    }
+    // [HttpPost]
+    // public async Task<IActionResult> AddAuditoria([FromBody] CreateAuditoriaDto auditoriaDto)
+    // {
+    //     Auditoria auditoria = mapper.Map<Auditoria>(auditoriaDto);
+    //     //Auditoria newAuditoria = await _serviceAuditoria.AddAsync(auditoriaDto);
+    //     return CreatedAtAction(
+    //         nameof(GetAuditoriaById),
+    //         new { id = newAuditoria.IdAuditoria },
+    //         newAuditoria
+    //     );
+    // }
 
     // PUT ACTUALIZAR AUDITORIA
     [HttpPut("{id}")]

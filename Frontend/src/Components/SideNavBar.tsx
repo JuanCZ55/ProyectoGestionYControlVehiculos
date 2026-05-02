@@ -71,6 +71,12 @@ export default function SideNavBar() {
                         className="ps-4">
                         <i className="bi bi-person-circle"></i> Usuarios
                       </Nav.Link>
+                      <Nav.Link
+                        as={Link}
+                        to={endpointFront.logs.listar.action}
+                        className="ps-4">
+                        <i className="bi bi-journal-text"></i> Logs
+                      </Nav.Link>
                     </Nav>
                   </Accordion.Body>
                 </Accordion.Item>

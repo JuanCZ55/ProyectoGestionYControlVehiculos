@@ -12,10 +12,16 @@ public class ControllerMatafuego : ControllerBase
 {
     private readonly ServiceMatafuego _serviceMatafuego;
     private readonly IMapper mapper;
+    private readonly ServiceAuditoria _serviceAuditoria;
 
-    public ControllerMatafuego(ServiceMatafuego serviceMatafuego, IMapper mapper)
+    public ControllerMatafuego(
+        ServiceMatafuego serviceMatafuego,
+        IMapper mapper,
+        ServiceAuditoria serviceAuditoria
+    )
     {
         _serviceMatafuego = serviceMatafuego;
+        _serviceAuditoria = serviceAuditoria;
         this.mapper = mapper;
     }
 
@@ -51,6 +57,14 @@ public class ControllerMatafuego : ControllerBase
     {
         Matafuego matafuego = mapper.Map<Matafuego>(matafuegoDto);
         var newMatafuego = await _serviceMatafuego.AddAsync(matafuego);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = newMatafuego.IdMatafuego,
+                Entidad = NombreClases.Matafuego,
+                Accion = nameof(AddMatafuego),
+            }
+        );
         return CreatedAtAction(
             nameof(GetMatafuegoById),
             new { id = newMatafuego.IdMatafuego },
@@ -72,6 +86,14 @@ public class ControllerMatafuego : ControllerBase
         try
         {
             await _serviceMatafuego.UpdateAsync(id, matafuego);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Matafuego,
+                    Accion = nameof(UpdateMatafuego),
+                }
+            );
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -90,6 +112,14 @@ public class ControllerMatafuego : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Matafuego,
+                Accion = nameof(DeleteMatafuego),
+            }
+        );
         return NoContent();
     }
 
@@ -102,6 +132,14 @@ public class ControllerMatafuego : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Matafuego,
+                Accion = nameof(SoftDeleteMatafuego),
+            }
+        );
         return NoContent();
     }
 
@@ -114,6 +152,14 @@ public class ControllerMatafuego : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Matafuego,
+                Accion = nameof(RestoreMatafuego),
+            }
+        );
         return NoContent();
     }
 
