@@ -32,7 +32,7 @@ namespace Backend.Services
             int totalRegistrosAuditoria = await query.CountAsync();
             var auditorias = await query
                 .Include(u => u.Usuario)
-                .OrderBy(a => a.IdAuditoria)
+                .OrderByDescending(a => a.Fecha)
                 .Skip((numeroPagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .Select(a => new AuditoriaDto

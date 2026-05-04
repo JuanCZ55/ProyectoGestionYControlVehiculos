@@ -160,7 +160,6 @@ export function UserDashboard() {
         if (errorJSON.mensaje) {
           errorMessage = errorJSON.mensaje;
         }
-        console.log(errorMessage);
         throw new Error(errorMessage);
       }
 
@@ -255,7 +254,6 @@ export function UserDashboard() {
             `No se pudo actualizar la contraseña. ${error}`,
             "error",
           );
-          console.log(error);
         }
       }
     });
@@ -279,7 +277,6 @@ export function UserDashboard() {
     if (!validationResult.success) {
       const newErrors = formatZodErrors(validationResult.error);
       setErrors(newErrors);
-      console.log(newErrors);
       Swal.fire({
         title: "Error al guardar la persona",
         text: Object.values(newErrors)[0],
