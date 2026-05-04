@@ -45,7 +45,7 @@ export default function ActualizarRegistroKilometraje() {
           endpointsAPI.controlKilometraje.buscarPorId.action(parseInt(id!)),
           {
             method: endpointsAPI.controlKilometraje.buscarPorId.method,
-          }
+          },
         );
         if (!responseFromApi.ok) throw new Error(await responseFromApi.text());
         const data = await responseFromApi.json();
@@ -124,7 +124,7 @@ export default function ActualizarRegistroKilometraje() {
               name="vehiculoForm"
               method={endpointsAPI.controlKilometraje.editar.method}
               action={endpointsAPI.controlKilometraje.editar.action(
-                formData.IdRegistroKilometraje!
+                formData.IdRegistroKilometraje!,
               )}
               validateForm={ValidateForm}
               onSuccess={handleSuccess}
@@ -136,10 +136,11 @@ export default function ActualizarRegistroKilometraje() {
               <input
                 type="hidden"
                 name="FechaRegistro"
-                value={formData.FechaRegistro?.toLocaleDateString("es-AR")
-                  .split("/")
-                  .reverse()
-                  .join("-")}></input>
+                value={
+                  formData.FechaRegistro
+                    ? formData.FechaRegistro.toISOString()
+                    : ""
+                }></input>
 
               <FormInput
                 label="Kilometraje Actual"

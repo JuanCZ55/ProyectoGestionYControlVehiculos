@@ -20,7 +20,7 @@ export default function FormButtons<T>({
   };
 
   return (
-    <div className="d-flex flex-row justify-content-end gap-5 py-1 mb-1 me-2 px-5">
+    <div className="d-flex flex-wrap justify-content-center gap-3 mt-4 w-100">
       <NavButton
         iconClass="bi bi-arrow-left-circle-fill"
         text=" Volver"></NavButton>
@@ -28,6 +28,7 @@ export default function FormButtons<T>({
       <button type="reset" className="btn-cancel" onClick={formReset}>
         <i className="bi bi-eraser-fill"></i> Limpiar
       </button>
+
       <button
         type="submit"
         className="btn-submit"
