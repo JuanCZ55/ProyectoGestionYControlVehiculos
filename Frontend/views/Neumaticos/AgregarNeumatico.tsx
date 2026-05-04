@@ -123,27 +123,25 @@ export const AgregarNeumatico = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        paddingBlock: "0.01rem", // ← reducido de 2rem
-        minHeight: "90%", // ← ayuda a centrar sin empujar
+        paddingBlock: "0.01rem",
+        minHeight: "90%",
       }}>
       <FormCard
         title="Registrar Neumatico"
         classNameCard="rounded-5 text-white shadow-lg border border-secondary"
         styleCard={{
-          maxWidth: "650px", // ← un poco más angosto (antes 700)
+          maxWidth: "650px",
           background: "linear-gradient(145deg, #1e2124 0%, #23272b 100%)",
           boxShadow: "0 1.5rem 3rem rgba(0,0,0,0.6)",
         }}
         classNameHeader="text-center fs-5 fw-bold border-bottom border-secondary py-2"
-        classNameBody="p-3 p-sm-4" // ← reducido de p-4 p-sm-5
-      >
+        classNameBody="p-3 p-sm-4">
         <form
           name="AgregarNeumaticoForm"
           onSubmit={handleSubmit}
           onError={onError}>
-          {/* Sección Identificación */}
           <div
-            className="p-3 mb-3 rounded-4 border" // ← p-4 → p-3, mb-4 → mb-3
+            className="p-3 mb-3 rounded-4 border"
             style={{
               backgroundColor: "rgba(255,255,255,0.03)",
               borderColor: "rgba(255,255,255,0.1)",
@@ -153,7 +151,7 @@ export const AgregarNeumatico = () => {
               style={{
                 borderColor: "rgba(255,255,255,0.1)",
                 color: "#62b5f0",
-                fontSize: "1rem", // ← un poco más pequeño
+                fontSize: "1rem",
               }}>
               <i className="bi bi-tag-fill"></i> Identificación del Neumático
             </h5>
@@ -190,7 +188,6 @@ export const AgregarNeumatico = () => {
             />
           </div>
 
-          {/* Sección Condición y Uso */}
           <div
             className="p-3 mb-3 rounded-4 border"
             style={{

@@ -1,8 +1,6 @@
 export default function Home() {
   return (
     <div className="container-fluid py-5 px-4">
-      {/* Sección Hero / Presentación Principal (Modo Oscuro) */}
-      {/* Cambiamos bg-white por bg-dark y añadimos text-white */}
       <div className="row mb-5 align-items-center bg-dark text-white rounded-4 shadow p-4 p-md-5 border-start border-primary border-5">
         <div className="col-lg-8">
           <h1 className="display-5 fw-bold text-white mb-3">
@@ -22,21 +20,17 @@ export default function Home() {
           </p>
         </div>
         <div className="col-lg-4 text-center d-none d-lg-block">
-          {/* Ícono gigante */}
           <i
             className="bi bi-shield-check text-primary"
             style={{ fontSize: "10rem", opacity: 0.1 }}></i>
         </div>
       </div>
 
-      {/* Sección de Explicación de Módulos */}
       <h4 className="fw-bold mb-4 px-2" style={{ color: "#e9ecef" }}>
         Características del Sistema
       </h4>
       <div className="row g-4">
-        {/* Tarjeta de Feature 1 */}
         <div className="col-md-4">
-          {/* Tarjeta oscura: bg-dark */}
           <div className="card h-100 bg-dark text-white border-0 shadow rounded-4">
             <div className="card-body p-4">
               <div
@@ -54,7 +48,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tarjeta de Feature 2 */}
         <div className="col-md-4">
           <div className="card h-100 bg-dark text-white border-0 shadow rounded-4">
             <div className="card-body p-4">
@@ -73,7 +66,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tarjeta de Feature 3 */}
         <div className="col-md-4">
           <div className="card h-100 bg-dark text-white border-0 shadow rounded-4">
             <div className="card-body p-4">

@@ -56,18 +56,13 @@ export default function Login() {
       fluid
       className="d-flex justify-content-center align-items-center"
       style={{ minHeight: "100vh", backgroundColor: "#1a1d20" }}>
-      {" "}
-      {/* Fondo unificado del sistema */}
       <Row className="w-100 justify-content-center">
         <Col xs={12} md={8} lg={5} xl={4}>
           <Card
             className="shadow-lg border-0 rounded-4"
             style={{ backgroundColor: "#212529" }}>
-            {" "}
-            {/* Color de tarjeta oscura */}
             <Card.Body className="p-5 text-white">
               <div className="text-center mb-4">
-                {/* Ícono con el mismo estilo de contenedor del Home */}
                 <div
                   className="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
                   style={{ width: "80px", height: "80px" }}>
@@ -102,8 +97,8 @@ export default function Login() {
                     onChange={(e) => setGmail(e.target.value)}
                     required
                     size="lg"
-                    className="bg-dark text-white border-secondary" // Inputs oscuros
-                    style={{ colorScheme: "dark" }} // Mejora el autocompletado en navegadores
+                    className="bg-dark text-white border-secondary"
+                    style={{ colorScheme: "dark" }}
                   />
                 </Form.Group>
 

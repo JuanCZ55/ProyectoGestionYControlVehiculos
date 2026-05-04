@@ -4,7 +4,7 @@ export const ListadoKilometrajeSchema = z.object({
   idRegistroKilometraje: z.number(),
   idVehiculo: z.number(),
   kilometraje: z.number(),
-  fechaRegistro: z.string(), // la API manda string, lo puedes transformar luego
+  fechaRegistro: z.string(),
   estado: z.boolean(),
   marca: z.string(),
   modelo: z.string(),
@@ -32,5 +32,5 @@ export const ListadoKilometrajeApiParser = ListadoKilometrajeSchema.transform(
     Marca: apiData.marca,
     Modelo: apiData.modelo,
     Patente: apiData.patente,
-  })
+  }),
 );

@@ -7,7 +7,8 @@
   font-size: 1rem;
   overflow-x: auto;
   border-radius: 14px;
-  box-shadow: 24px 32px 48px -8px rgba(0, 0, 0, 0.85),
+  box-shadow:
+    24px 32px 48px -8px rgba(0, 0, 0, 0.85),
     8px 12px 24px -4px rgba(0, 0, 0, 0.55);
   table-layout: fixed;
 }
@@ -18,23 +19,21 @@
   border: 1px solid #444;
 }
 
-/* ENCABEZADOS EN AZUL PROFESIONAL */
 .table-responsive thead th {
   font-weight: bold;
   color: #ffffff;
-  background: #2563eb; /* Azul profesional */
+  background: #2563eb;
   border-bottom: 2px solid #1e40af;
 }
 
 .table-responsive thead th:nth-child(even) {
-  background: #1d4ed8; /* Azul más oscuro */
+  background: #1d4ed8;
 }
 
 .table-responsive thead th:nth-child(odd) {
-  background: #2563eb; /* Azul principal */
+  background: #2563eb;
 }
 
-/* BORDES REDONDEADOS ORIGINALES */
 .table-responsive thead th:first-child {
   border-top-left-radius: 14px;
 }
@@ -49,7 +48,6 @@
   border-bottom-right-radius: 14px;
 }
 
-/* FILAS STRIPPED ORIGINAL */
 .table-responsive tbody tr:nth-child(even) {
   background: #232323;
 }
@@ -62,9 +60,10 @@
   background: #333;
 }
 
-/* TRANSICIONES Y EFECTOS ANIMADOS ORIGINALES - LOS QUE TE GUSTARON */
 .table-responsive tbody tr {
-  transition: background 0.3s, transform 0.25s;
+  transition:
+    background 0.3s,
+    transform 0.25s;
 }
 .table-responsive tbody:hover tr {
   filter: blur(2px);
@@ -73,7 +72,7 @@
 
 .table-responsive tbody tr:hover {
   filter: none !important;
-  background: #3b82f6 !important; /* Azul en hover */
+  background: #3b82f6 !important;
   color: #ffffff;
   transform: scale(1.02);
   z-index: 1;
@@ -81,10 +80,12 @@
   cursor: pointer;
   font-weight: bold;
   font-size: large;
-  transition: filter 0.2s, background 0.3s, transform 0.25s;
+  transition:
+    filter 0.2s,
+    background 0.3s,
+    transform 0.25s;
 }
 
-/* ANIMACIÓN DE ENTRADA MEJORADA */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -100,7 +101,6 @@
   animation: fadeInUp 0.6s ease forwards;
 }
 
-/* DELAYS ESCALONADOS PARA LAS FILAS */
 .table-responsive tbody tr:nth-child(1) {
   animation-delay: 0.05s;
 }
@@ -123,10 +123,9 @@
   animation-delay: 0.35s;
 }
 
-/* EFECTO DE RESALTADO EN ESTADO ACTIVO */
 .table-responsive td:last-child {
   font-weight: 600;
-  color: #10b981; /* Verde para estado activo */
+  color: #10b981;
 }
 
 .table-responsive tr:hover td:last-child {
@@ -134,7 +133,6 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* SCROLLBAR PERSONALIZADO EN AZUL */
 .table-responsive::-webkit-scrollbar {
   height: 10px;
 }

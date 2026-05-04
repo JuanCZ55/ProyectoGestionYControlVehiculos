@@ -52,7 +52,7 @@ const ProtectedLayout = () => {
             lg={10}
             className="p-4 text-light d-flex flex-column"
             style={{
-              backgroundColor: "#1a1d20", // ¡Aquí está el cambio de color clave!
+              backgroundColor: "#1a1d20",
               minHeight: "calc(100vh - 56px)",
               overflowY: "auto",
             }}>

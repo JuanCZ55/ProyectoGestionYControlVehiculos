@@ -5,13 +5,11 @@ export default function Unauthorized() {
   const navigate = useNavigate();
 
   return (
-    // Usamos d-flex para centrar todo perfectamente en el medio de la pantalla
     <Container
       className="d-flex justify-content-center align-items-center"
       style={{ minHeight: "100vh" }}>
       <Row className="text-center shadow p-5 bg-white rounded">
         <Col>
-          {/* Un ícono de candado gigante usando Bootstrap Icons */}
           <i
             className="bi bi-shield-lock-fill text-danger"
             style={{ fontSize: "6rem" }}></i>
@@ -24,7 +22,6 @@ export default function Unauthorized() {
             para acceder a esta sección de ArgenCore.
           </p>
 
-          {/* Botón para devolver al usuario a una zona segura */}
           <Button
             variant="primary"
             size="lg"

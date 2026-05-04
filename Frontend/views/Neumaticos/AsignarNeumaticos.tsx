@@ -17,22 +17,20 @@ import Swal from "sweetalert2";
 import type { PaginaResponseType } from "../../types/PaginaResponse.Type";
 import { PaginatorForTable } from "../../src/Components/Table/Paginator";
 
-// --- TEMA GEMINI / MATERIAL DARK ---
 const geminiTheme = {
-  bgPage: "#131314", // El fondo casi negro de Gemini
-  bgSurface: "#1E1F20", // El gris de las tarjetas/chat
-  bgInput: "#2D2E31", // El fondo de los inputs
-  textMain: "#E3E3E3", // Texto casi blanco
-  textMuted: "#C4C7C5", // Texto secundario
-  accentBlue: "#A8C7FA", // Azul pastel (Google Blue)
-  accentRed: "#F2B8B5", // Rojo pastel (Google Red)
-  buttonBg: "#004A77", // Fondo de botón "Tonal"
-  radius: "24px", // Redondeo fuerte característico
+  bgPage: "#131314",
+  bgSurface: "#1E1F20",
+  bgInput: "#2D2E31",
+  textMain: "#E3E3E3",
+  textMuted: "#C4C7C5",
+  accentBlue: "#A8C7FA",
+  accentRed: "#F2B8B5",
+  buttonBg: "#004A77",
+  radius: "24px",
 };
 
 export const AsignarNeumaticos = () => {
   const [vehiculo, setVehiculo] = useState<VehiculoSchemaType | null>();
-  // ... [ESTADOS SIN CAMBIOS] ...
   const [neumaticoAvailableToAssign, setNeumaticoAvailableToAssign] = useState<
     PaginaResponseType<NeumaticoType>
   >({
@@ -52,7 +50,6 @@ export const AsignarNeumaticos = () => {
     });
   const [reload, setReload] = useState(1);
   const [quantityNeumaticosInTable] = useState(6);
-  // ... [TU LÓGICA DE CARGA DE DATOS INTACTA] ...
   useEffect(() => {
     if (vehiculo == null) return;
     try {
@@ -108,8 +105,6 @@ export const AsignarNeumaticos = () => {
     }
   }, [vehiculo?.idVehiculo, reload, currentPageAssigned, currentPageAvailable]);
 
-  // --- ESTILOS INYECTADOS PARA FORZAR LA TABLA (Hack visual) ---
-  // Esto elimina el azul de Bootstrap sin tocar tu componente TableResponsive
   const GlobalStyles = () => (
     <style>{`
       .table { --bs-table-bg: transparent; color: ${geminiTheme.textMain}; }
@@ -125,7 +120,6 @@ export const AsignarNeumaticos = () => {
     `}</style>
   );
 
-  // --- FILAS DE LA TABLA DISPONIBLES ---
   const tableDataAvailableNeumaticos = neumaticoAvailableToAssign.data.map(
     (neumatico) => (
       <tr
@@ -139,13 +133,12 @@ export const AsignarNeumaticos = () => {
             style={{
               backgroundColor: geminiTheme.buttonBg,
               color: "#D3E3FD",
-              borderRadius: "50px", // Botón tipo pastilla (Pill)
+              borderRadius: "50px",
               padding: "6px 20px",
               border: "none",
               fontWeight: "500",
             }}
             onClick={async () => {
-              /* TU LOGICA ASIGNAR */
               try {
                 const ok = await fetch(
                   endpointsAPI.neumaticos.asignarNeumaticos.action(
@@ -178,7 +171,6 @@ export const AsignarNeumaticos = () => {
     ),
   );
 
-  // --- FILAS DE LA TABLA ASIGNADOS ---
   const tableDataAssignedNeumaticos = () => {
     if (!neumaticoAssignedToVehiculo?.data.length) {
       return (
@@ -202,15 +194,14 @@ export const AsignarNeumaticos = () => {
           <button
             className="btn "
             style={{
-              backgroundColor: "#390C0C", // Rojo muy oscuro fondo
-              color: geminiTheme.accentRed, // Rojo pastel texto
+              backgroundColor: "#390C0C",
+              color: geminiTheme.accentRed,
               borderRadius: "50px",
               padding: "6px 20px",
               border: "none",
               fontWeight: "500",
             }}
             onClick={async () => {
-              /* TU LOGICA DESASIGNAR */
               try {
                 const ok = await fetch(
                   endpointsAPI.neumaticos.borrarAsignacion.action(
@@ -252,7 +243,7 @@ export const AsignarNeumaticos = () => {
         color: geminiTheme.textMain,
         fontFamily: "'Google Sans', sans-serif",
       }}>
-      <GlobalStyles /> {/* Inyección de CSS para corregir la tabla azul */}
+      <GlobalStyles />
       <FormCard
         title="Gestor de Neumáticos"
         styleCard={{
@@ -260,12 +251,12 @@ export const AsignarNeumaticos = () => {
           color: geminiTheme.textMain,
           border: "none",
           borderRadius: geminiTheme.radius,
-          boxShadow: "none", // Gemini es flat
+          boxShadow: "none",
         }}>
         <FormCard
           title="Seleccionar Vehículo"
           styleCard={{
-            backgroundColor: geminiTheme.bgPage, // Contraste sutil
+            backgroundColor: geminiTheme.bgPage,
             color: geminiTheme.textMuted,
             border: "none",
             borderRadius: "16px",
@@ -287,7 +278,6 @@ export const AsignarNeumaticos = () => {
 
         {vehiculo && (
           <div className="d-flex flex-column flex-xl-row gap-4 mt-4">
-            {/* PANEL IZQUIERDO */}
             <FormCard
               title="Neumáticos Asignados"
               styleHeader={{
@@ -338,7 +328,6 @@ export const AsignarNeumaticos = () => {
               </TableContainer>
             </FormCard>
 
-            {/* PANEL DERECHO */}
             <FormCard
               title="Stock Disponible"
               styleHeader={{

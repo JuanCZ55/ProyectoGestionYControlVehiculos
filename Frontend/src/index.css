@@ -1,29 +1,23 @@
-/* 1. Fundamental: Evita que los paddings o bordes agranden los elementos y rompan la pantalla */
 * {
   box-sizing: border-box;
 }
-
-/* 2. Matamos el scroll del navegador y forzamos el alto estricto */
 html,
 body {
   margin: 0;
   padding: 0;
-  height: 100vh; /* Alto exacto de la ventana */
-  width: 100vw; /* Ancho exacto de la ventana */
-  overflow: hidden; /* PROHIBIDO hacer scroll en la ventana principal */
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 
-  /* Tus fuentes originales */
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Fondo base oscuro por si algo carga lento */
   background-color: #1a1d20;
 }
 
-/* 3. React envuelve todo en el div #root, este también debe respetar el límite */
 #root {
   height: 100%;
   width: 100%;

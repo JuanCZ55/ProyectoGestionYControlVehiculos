@@ -12,7 +12,7 @@ export default function SideNavBar() {
       xs={12}
       md={3}
       lg={2}
-      className="p-0 bg-dark border-end border-secondary" /* Borde derecho sutil */
+      className="p-0 bg-dark border-end border-secondary"
       style={{ minHeight: "100vh" }}>
       <Navbar
         bg="dark"
@@ -24,7 +24,6 @@ export default function SideNavBar() {
         <Navbar.Collapse id="sidebar-nav" className="flex-column w-100">
           <Nav className="flex-column w-100 gap-2">
             {" "}
-            {/* gap-2 para separar los acordeones */}
             {/* Acordeón Vehículos */}
             <Accordion
               defaultActiveKey="0"

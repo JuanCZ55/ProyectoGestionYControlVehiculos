@@ -14,7 +14,6 @@ export default function TopNavBar() {
   };
 
   return (
-    // Agregamos shadow-sm y un borde inferior oscuro para separarlo del cuerpo
     <Navbar
       bg="dark"
       variant="dark"
@@ -38,7 +37,6 @@ export default function TopNavBar() {
           <Nav className="me-auto"></Nav>
           <Nav className="gap-2">
             {" "}
-            {/* gap-2 separa un poquito los botones */}
             <Nav.Link
               as={Link}
               to="/"

@@ -64,7 +64,6 @@ export default function VehiculosDocumentos() {
             />
           )}
         />
-        {/* Hasta aca llegaria lo que seria la pagina, Este bonton seria el volver */}
         <NavButtonPosition />
         <ContainerCargador
           show={showCargador}
