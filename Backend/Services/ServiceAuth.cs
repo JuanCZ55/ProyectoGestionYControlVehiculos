@@ -69,7 +69,8 @@ public class ServiceAuth
             throw new KeyNotFoundException("Usuario no encontrado");
         if (!_servicePassword.VerifyPassword(dto.Contrasena!, usuario.Contrasena))
             throw new Exception("Contraseña incorrecta");
-
+        if (!usuario.Estado)
+            throw new Exception("Usuario dado de baja");
         string token = _servicenToken.GenerateToken(usuario);
         await _serviceAuditoria.AddAsync(
             new CreateAuditoriaDto
