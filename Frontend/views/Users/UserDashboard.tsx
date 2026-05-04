@@ -4,7 +4,13 @@ import FormCard from "../../src/Components/Form/FormCard";
 import endpointsAPI from "../../src/Components/Routes/Enrouters";
 import { getUserFromToken } from "../../src/Utils/Auth";
 import Swal from "sweetalert2";
-import { type PersonaType, type UsuarioType } from "../../types/Usuario.schema";
+import {
+  PersonaSchemeValidator,
+  type PersonaType,
+  type UsuarioType,
+} from "../../types/Usuario.schema";
+import { formatZodErrors } from "../../src/Utils/Validation.utils";
+import { getErrorMessage } from "../../src/Utils/Errors.utils";
 
 // Función auxiliar para formatear la fecha a YYYY-MM-DD (Requerido por <input type="date">)
 const formatDateForInput = (dateValue: Date | string | undefined) => {
@@ -26,7 +32,7 @@ export function UserDashboard() {
   const [showGmailModal, setShowGmailModal] = useState(false);
   const [newEmail, setNewEmail] = useState<string>("");
   const [validEmail, setValidEmail] = useState<boolean>(false);
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   // Estado editable para el formulario
   const [persona, setPersona] = useState<PersonaType>({
     idPersona: 0,
@@ -100,7 +106,11 @@ export function UserDashboard() {
     }
   }, []);
 
-  const handleClosePersonaModal = () => setShowPersonaModal(false);
+  const handleClosePersonaModal = () => {
+    setShowPersonaModal(false);
+    setErrors({});
+    setPersona(usuario!.persona!);
+  };
   const handleShowPersonaModal = () => setShowPersonaModal(true);
   const handleCloseGmailModal = () => setShowGmailModal(false);
   const handleShowGmailModal = () => setShowGmailModal(true);
@@ -264,10 +274,28 @@ export function UserDashboard() {
           : value;
     setPersona({ ...persona, [name]: finalValue });
   };
-
+  const validateForm = (): boolean => {
+    const validationResult = PersonaSchemeValidator.safeParse(persona);
+    if (!validationResult.success) {
+      const newErrors = formatZodErrors(validationResult.error);
+      setErrors(newErrors);
+      console.log(newErrors);
+      Swal.fire({
+        title: "Error al guardar la persona",
+        text: Object.values(newErrors)[0],
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+      return false;
+    } else {
+      setErrors({});
+      return true;
+    }
+  };
   // Función lista para que agregues tu fetch PUT/POST para guardar la persona
   const handleGuardarPersona = async () => {
     try {
+      if (!validateForm()) return;
       const fechaCruda = persona.fechaNac as any;
       const fechaFormateada =
         typeof fechaCruda === "string"

@@ -14,6 +14,32 @@ export const PersonaSchema = z.object({
   fechaNac: z.coerce.date(),
   estado: z.boolean(),
 });
+export const PersonaSchemeValidator = z.object({
+  idPersona: z.number().optional(),
+  nombre: z
+    .string()
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(50, "El nombre no puede tener más de 50 caracteres"),
+  apellido: z
+    .string()
+    .min(3, "El apellido debe tener al menos 3 caracteres")
+    .max(50, "El apellido no puede tener más de 50 caracteres"),
+  dni: z
+    .number()
+    .min(1000000, "El DNI debe tener al menos 7 caracteres")
+    .max(99999999, "El DNI no puede tener más de 8 caracteres"),
+  fechaNac: z.coerce
+    .date()
+    .min(
+      new Date("1900-01-01"),
+      "La fecha de nacimiento no puede ser anterior al 1 de enero de 1900",
+    )
+    .max(
+      new Date(),
+      "La fecha de nacimiento no puede ser posterior a la fecha actual",
+    ),
+  estado: z.boolean(),
+});
 export const UsuarioSchema = z.object({
   idUsuario: z.number(),
   gmail: z.string().email(),

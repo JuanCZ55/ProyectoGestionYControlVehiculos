@@ -9,6 +9,7 @@ import endpointsAPI from "../../src/Components/Routes/Enrouters";
 import z from "zod";
 import AltaBajaLogica from "../../src/Components/Table/AltaBajaLogica";
 import Swal from "sweetalert2";
+import { getUserFromToken } from "../../src/Utils/Auth";
 export default function UsersList() {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UsuarioType | null>(null);
@@ -36,6 +37,11 @@ export default function UsersList() {
       showCloseButton: true,
     });
   };
+  useEffect(() => {
+    console.log(
+      "SUB" + getUserFromToken()?.sub + "ID" + selectedUser?.idUsuario,
+    );
+  });
   const tableData = metadataPage.data.map((usuario: UsuarioType) => (
     <tr
       key={usuario.idUsuario}
@@ -231,31 +237,33 @@ export default function UsersList() {
         onClose={() => setShowModal(false)}>
         {selectedUser && (
           <>
-            <AltaBajaLogica
-              endpointAlta={endpointsAPI.usuarios.alta.action(
-                selectedUser.idUsuario,
-              )}
-              methodAlta={endpointsAPI.usuarios.alta.method}
-              endpointBaja={endpointsAPI.usuarios.baja.action(
-                selectedUser.idUsuario,
-              )}
-              methodBaja={endpointsAPI.usuarios.baja.method}
-              estado={selectedUser.estado}
-              onChange={(nuevoEstado) => {
-                selectedUser.estado = nuevoEstado;
-                setMetadataPage((prevData) => ({
-                  ...prevData,
-                  data: prevData.data.map((usuario) => {
-                    if (
-                      String(usuario.idUsuario) ===
-                      String(selectedUser.idUsuario)
-                    ) {
-                      return { ...usuario, estado: nuevoEstado };
-                    }
-                    return usuario;
-                  }),
-                }));
-              }}></AltaBajaLogica>
+            {selectedUser.idUsuario != getUserFromToken()!.sub && (
+              <AltaBajaLogica
+                endpointAlta={endpointsAPI.usuarios.alta.action(
+                  selectedUser.idUsuario,
+                )}
+                methodAlta={endpointsAPI.usuarios.alta.method}
+                endpointBaja={endpointsAPI.usuarios.baja.action(
+                  selectedUser.idUsuario,
+                )}
+                methodBaja={endpointsAPI.usuarios.baja.method}
+                estado={selectedUser.estado}
+                onChange={(nuevoEstado) => {
+                  selectedUser.estado = nuevoEstado;
+                  setMetadataPage((prevData) => ({
+                    ...prevData,
+                    data: prevData.data.map((usuario) => {
+                      if (
+                        String(usuario.idUsuario) ===
+                        String(selectedUser.idUsuario)
+                      ) {
+                        return { ...usuario, estado: nuevoEstado };
+                      }
+                      return usuario;
+                    }),
+                  }));
+                }}></AltaBajaLogica>
+            )}
             <button
               className="btn btn-primary"
               onClick={handleChangeRole}>{`Cambiar Rol`}</button>
