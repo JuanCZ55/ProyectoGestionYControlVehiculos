@@ -79,13 +79,16 @@ export default function VehiculoAgregar() {
   };
 
   return (
-    <div className="container-fluid py-2">
+    // 1. Agregamos d-flex y justify-content-center para que no se pegue a la izquierda
+    <div className="container-fluid py-3 d-flex justify-content-center">
       <FormCard
         title="Registrar Vehículo Nuevo"
-        classNameCard="border-0 shadow-lg rounded-4 text-white"
-        classNameHeader="fs-4 fw-bold text-white bg-transparent border-bottom border-secondary py-3 px-4"
-        classNameBody="p-4 p-md-5"
-        styleCard={{ backgroundColor: "#212529" }}>
+        // 2. Agregamos w-100 y mx-auto
+        classNameCard="border-0 shadow-lg rounded-4 text-white w-100 mx-auto"
+        classNameHeader="fs-5 fw-bold text-white bg-transparent border-bottom border-secondary py-3 px-4"
+        classNameBody="p-3 p-md-4" // 3. Reducimos el padding general
+        // 4. Establecemos el límite perfecto (maxWidth: "950px") y el color correcto
+        styleCard={{ backgroundColor: "#1e2125", maxWidth: "950px" }}>
         <Form
           name="vehiculoForm"
           method={endpointsAPI.vehiculos.nuevo.method}
@@ -94,13 +97,17 @@ export default function VehiculoAgregar() {
           onSuccess={handleSuccess}
           onError={handleError}>
           <div
-            className="p-4 mb-4 rounded-4 border border-secondary"
-            style={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
-            <h5
-              className="fw-bold text-primary mb-4 pb-2 border-bottom border-secondary"
-              style={{ opacity: 0.9 }}>
+            className="p-3 mb-3 rounded-3 border border-secondary"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.015)" }}>
+            <h6
+              className="fw-bold text-primary mb-3 pb-2 border-bottom border-secondary text-uppercase"
+              style={{
+                opacity: 0.85,
+                letterSpacing: "0.5px",
+                fontSize: "0.85rem",
+              }}>
               <i className="bi bi-car-front me-2"></i> Información Principal
-            </h5>
+            </h6>
 
             <Row className="g-3">
               <Col xs={12} md={3}>
@@ -167,13 +174,17 @@ export default function VehiculoAgregar() {
           </div>
 
           <div
-            className="p-4 mb-4 rounded-4 border border-secondary"
-            style={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
-            <h5
-              className="fw-bold text-primary mb-4 pb-2 border-bottom border-secondary"
-              style={{ opacity: 0.9 }}>
+            className="p-3 mb-3 rounded-3 border border-secondary"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.015)" }}>
+            <h6
+              className="fw-bold text-primary mb-3 pb-2 border-bottom border-secondary text-uppercase"
+              style={{
+                opacity: 0.85,
+                letterSpacing: "0.5px",
+                fontSize: "0.85rem",
+              }}>
               <i className="bi bi-gear me-2"></i> Información Técnica
-            </h5>
+            </h6>
 
             <Row className="g-3">
               <Col xs={12} md={6}>
@@ -204,13 +215,17 @@ export default function VehiculoAgregar() {
           </div>
 
           <div
-            className="p-4 mb-5 rounded-4 border border-secondary"
-            style={{ backgroundColor: "rgba(255, 255, 255, 0.02)" }}>
-            <h5
-              className="fw-bold text-primary mb-4 pb-2 border-bottom border-secondary"
-              style={{ opacity: 0.9 }}>
+            className="p-3 mb-4 rounded-3 border border-secondary"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.015)" }}>
+            <h6
+              className="fw-bold text-primary mb-3 pb-2 border-bottom border-secondary text-uppercase"
+              style={{
+                opacity: 0.85,
+                letterSpacing: "0.5px",
+                fontSize: "0.85rem",
+              }}>
               <i className="bi bi-disc me-2"></i> Ruedas y Auxilios
-            </h5>
+            </h6>
 
             <Row className="g-3">
               <Col xs={12} md={6}>
@@ -240,7 +255,7 @@ export default function VehiculoAgregar() {
             </Row>
           </div>
 
-          <div className="pt-3">
+          <div className="pt-2">
             <FormButtons
               setFormData={setFormData}
               initialState={initialState}

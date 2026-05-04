@@ -30,7 +30,7 @@ export default function ChecklistInput({
         className || ""
       }`}
       style={style}>
-      <span className="me-2 text-dark">{label}</span>
+      <span className="me-2 text-white">{label}</span>
       <Form.Check
         type="switch"
         id={name}

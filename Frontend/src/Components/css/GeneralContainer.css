@@ -1,11 +1,17 @@
 .general-container {
-  background: #232323;
-  color: #c1bfbf;
-  width: 101%;
-  height: 95%;
-  border-radius: 1rem;
-  border: thin solid #000;
-  padding: 2% 5%;
-  margin: 0 auto 2rem auto;
+  width: 100%;
+  height: auto; /* ESTA ES LA CLAVE: Deja que el contenido decida el alto */
+
+  background-color: #212529;
+  color: #f0f0f0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  padding: 1.5rem 2rem;
+  margin: 0 auto 1.5rem auto; /* Ahora este margen no empujará nada fuera de la pantalla */
   box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
 }
