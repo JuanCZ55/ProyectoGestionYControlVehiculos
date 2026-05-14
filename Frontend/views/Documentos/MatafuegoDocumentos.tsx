@@ -40,7 +40,7 @@ export default function MatafuegoDocumentos() {
           searchApiMethod={Enrouters.matafuegos.buscarPorNroSerie.method}
           relatedApiUrl={(matafuego: ApiMatafuegoType) =>
             Enrouters.documentos.buscarPorMatafuegoId.action(
-              matafuego.idMatafuego!
+              matafuego.idMatafuego!,
             )
           }
           relatedApiMethod={Enrouters.documentos.buscarPorMatafuegoId.method}
