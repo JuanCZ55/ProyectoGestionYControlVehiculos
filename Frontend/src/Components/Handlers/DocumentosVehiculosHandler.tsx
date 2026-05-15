@@ -199,9 +199,35 @@ export default function DocumentosVehiculosHandler({
             })}
       </div>
       {/* Documentos requeridos no presentes */}
-      {mostrarActivos && docs.length > 0
-        ? tiposRequeridos.map((req) =>
-            !tieneTipo(req.tipo) ? (
+      <div
+        style={{
+          maxHeight: "100px ",
+          height: "auto",
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+        }}
+        className="custom-scrollbar">
+        {mostrarActivos && docs.length > 0
+          ? tiposRequeridos.map((req) =>
+              !tieneTipo(req.tipo) ? (
+                <div
+                  key={req.tipo}
+                  className="d-flex align-items-center border rounded mb-1 p-2 gap-3 bg-light text-secondary justify-content-between">
+                  <span>
+                    <strong>{req.label}:</strong> No cargada
+                  </span>
+                  <Button
+                    style={{ marginRight: "5px" }}
+                    variant="success"
+                    size="sm"
+                    onClick={() => onCargar && onCargar(req.tipo)}>
+                    Cargar
+                  </Button>
+                </div>
+              ) : null,
+            )
+          : mostrarActivos &&
+            tiposRequeridos.map((req) => (
               <div
                 key={req.tipo}
                 className="d-flex align-items-center border rounded p-2 gap-3 bg-light text-secondary justify-content-between">
@@ -209,46 +235,29 @@ export default function DocumentosVehiculosHandler({
                   <strong>{req.label}:</strong> No cargada
                 </span>
                 <Button
-                  style={{ marginRight: "5px" }}
                   variant="success"
                   size="sm"
                   onClick={() => onCargar && onCargar(req.tipo)}>
                   Cargar
                 </Button>
               </div>
-            ) : null,
-          )
-        : mostrarActivos &&
-          tiposRequeridos.map((req) => (
-            <div
-              key={req.tipo}
-              className="d-flex align-items-center border rounded p-2 gap-3 bg-light text-secondary justify-content-between">
-              <span>
-                <strong>{req.label}:</strong> No cargada
-              </span>
-              <Button
-                variant="success"
-                size="sm"
-                onClick={() => onCargar && onCargar(req.tipo)}>
-                Cargar
-              </Button>
-            </div>
-          ))}
+            ))}
 
-      {/* Agregar documentación adicional */}
-      {mostrarActivos && (
-        <div className="d-flex align-items-center border rounded p-2 gap-3 bg-light text-secondary justify-content-between">
-          <span>
-            <strong>Agregar documentación adicional</strong>
-          </span>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onCargar && onCargar("")}>
-            Agregar
-          </Button>
-        </div>
-      )}
+        {/* Agregar documentación adicional */}
+        {mostrarActivos && (
+          <div className="d-flex align-items-center border rounded p-2 gap-3 bg-light text-secondary justify-content-between">
+            <span>
+              <strong>Agregar documentación adicional</strong>
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onCargar && onCargar("")}>
+              Agregar
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

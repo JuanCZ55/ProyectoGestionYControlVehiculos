@@ -55,7 +55,7 @@ export const PaginatorForTable = ({
   if (totalCountPages === 0) return null;
 
   return (
-    <div className="pagination-container mt-3 d-flex justify-content-center">
+    <div className="pagination-container mt-1 d-flex justify-content-center">
       <Pagination className={"pagination-core mb-0"}>
         <Pagination.Prev
           onClick={previousPage}

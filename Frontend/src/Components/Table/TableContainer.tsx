@@ -8,8 +8,8 @@ export default function TableContainer({
   title,
 }: TableContainerProps) {
   return (
-    <div className="table-container">
-      <h2 className="text-center my-2 py-2">{title}</h2>
+    <div className=" d-flex flex-column ">
+      <h2 className="text-center my-1 py-1">{title}</h2>
       {children}
     </div>
   );

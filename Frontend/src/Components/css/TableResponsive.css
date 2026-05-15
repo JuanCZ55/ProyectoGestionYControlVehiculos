@@ -150,3 +150,12 @@
 .table-responsive::-webkit-scrollbar-thumb:hover {
   background: #1d4ed8;
 }
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: #1a1a1a;
+  z-index: 10;
+  text-align: center;
+  padding: 12px;
+  border-bottom: 2px solid #333;
+}

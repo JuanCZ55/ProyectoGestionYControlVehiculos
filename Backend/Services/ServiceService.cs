@@ -110,5 +110,28 @@ namespace Backend.Services
 
             return new PagedResponse<Service>(items, totalRegistros, nroPagina, tamanoPagina);
         }
+
+        // MARCAR SERVICIO COMO RESUELTO
+        public async Task<bool> MarcarServicioResueltoAsync(int id)
+        {
+            var service = await _context.Services.FindAsync(id);
+            if (service == null)
+                return false;
+
+            service.Realizado = true;
+            _context.Services.Update(service);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> MarcarServicioComoNoResueltoAsync(int id)
+        {
+            var service = await _context.Services.FindAsync(id);
+            if (service == null)
+                return false;
+
+            service.Realizado = false;
+            _context.Services.Update(service);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

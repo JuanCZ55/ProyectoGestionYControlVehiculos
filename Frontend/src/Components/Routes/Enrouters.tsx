@@ -180,6 +180,16 @@ export const endpointsAPI = {
         `${API_ROUTE}/Mantenimiento/vehiculo/${vehiculoId}`,
       method: "GET",
     },
+    marcarComoRealizado: {
+      action: (id: number) =>
+        `${API_ROUTE}/Mantenimiento/servicio/resuelto/${id}`,
+      method: "PATCH",
+    },
+    marcarNoRealizado: {
+      action: (id: number) =>
+        `${API_ROUTE}/Mantenimiento/servicio/no/resuelto/${id}`,
+      method: "PATCH",
+    },
   },
   posicionNeumatico: {
     Listar: {
@@ -396,6 +406,9 @@ export const endpointFront = {
   },
   unauthoraized: {
     action: "/unauthoraized",
+  },
+  notfound: {
+    action: "*",
   },
   logout: {
     action: "/logout",

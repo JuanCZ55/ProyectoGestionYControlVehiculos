@@ -181,4 +181,42 @@ public class ControllerService : ControllerBase
         }
         return Ok(servicesVehiculo);
     }
+
+    [HttpPatch("servicio/resuelto/{id}")]
+    public async Task<IActionResult> MarcarServicioResuelto(int id)
+    {
+        var marcado = await _serviceService.MarcarServicioResueltoAsync(id);
+        if (!marcado)
+        {
+            return NotFound();
+        }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Service,
+                Accion = nameof(MarcarServicioResuelto),
+            }
+        );
+        return NoContent();
+    }
+
+    [HttpPatch("servicio/no/resuelto/{id}")]
+    public async Task<IActionResult> MarcarServicioComoNoResuelto(int id)
+    {
+        var marcado = await _serviceService.MarcarServicioComoNoResueltoAsync(id);
+        if (!marcado)
+        {
+            return NotFound();
+        }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Service,
+                Accion = nameof(MarcarServicioComoNoResuelto),
+            }
+        );
+        return NoContent();
+    }
 }

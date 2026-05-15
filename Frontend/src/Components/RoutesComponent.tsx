@@ -38,7 +38,7 @@ import UsersList from "../../views/Users/UsersList";
 import { UserDashboard } from "../../views/Users/UserDashboard";
 import ListaLogs from "../../views/Logs/ListaLogs";
 import Home from "../../views/home";
-
+import NotFound from "../../views/NotFound";
 const ProtectedLayout = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -74,6 +74,7 @@ export default function RoutesComponent() {
         path={endpointFront.unauthoraized.action}
         element={<Unauthorized />}
       />
+      <Route path={endpointFront.notfound.action} element={<NotFound />} />
       <Route element={ProtectedRoute({ allowedRoles: ["1", "2"] })}>
         <Route element={ProtectedLayout()}>
           <Route path={endpointFront.home.action} element={<Home />} />

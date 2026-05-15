@@ -106,7 +106,7 @@ export default function NuevoServicio() {
       Detalle: formData.detalle,
       Realizado: false,
       Estado: true,
-      Fecha: null,
+      Fecha: new Date().toISOString().split("T")[0],
     };
     console.log("Datos para backend:", formData);
     try {
@@ -127,8 +127,7 @@ export default function NuevoServicio() {
     <>
       <FormCard
         title="CHECKLIST DE VEHICULO"
-        classNameCard="bg-dark text-white rounded-4 shadow-lg p-4 w-100"
-      >
+        classNameCard="bg-dark text-white rounded-4 shadow-lg p-4 w-100">
         <form name="checklistForm" onSubmit={handleSubmit}>
           <div className="mb-5 w-50 text-center mx-auto">
             <ComboBoxBrowser

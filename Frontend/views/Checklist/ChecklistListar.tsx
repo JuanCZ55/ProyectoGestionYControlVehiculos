@@ -323,7 +323,7 @@ export default function ChecklistListar() {
     fetch(
       `${endpointsAPI.checklist.listarPorVehiculoId.action(
         idBuscar ? parseInt(idBuscar) : 0,
-      )}?nroPagina=${currentPage}&tamanoPagina=3`,
+      )}?nroPagina=${currentPage}&tamanoPagina=4`,
       { method: endpointsAPI.checklist.listarPorVehiculoId.method },
     )
       .then((response) => response.json())
