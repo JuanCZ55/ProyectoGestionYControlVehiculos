@@ -220,6 +220,18 @@ namespace Backend.Services
             Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
             if (usuarioFinded == null)
                 throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
+            if (usuarioFinded.AvatarUrl != null)
+            {
+                string rutaAvatarExistente = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "Avatars",
+                    usuarioFinded.AvatarUrl
+                );
+                if (File.Exists(rutaAvatarExistente))
+                {
+                    File.Delete(rutaAvatarExistente);
+                }
+            }
             string extension = Path.GetExtension(file.FileName);
             string nombreArchivo = $"{id}_{DateTime.Now.Ticks}{extension}";
             string carpeta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars");
