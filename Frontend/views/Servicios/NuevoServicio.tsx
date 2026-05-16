@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FormCard from "../../src/Components/Form/FormCard";
 import FormButtons from "../../src/Components/Form/FormButtons";
 import ComboBoxBrowser from "../../src/Components/FormBuscador/ComboBoxBrowser";
@@ -8,6 +8,7 @@ import { endpointsAPI } from "../../src/Components/Routes/Enrouters";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import FormInput from "../../src/Components/Form/FormInput";
+import { Modal } from "react-bootstrap";
 
 export default function NuevoServicio() {
   const navigate = useNavigate();
@@ -34,14 +35,17 @@ export default function NuevoServicio() {
   };
 
   const [formData, setFormData] = useState(initialState);
-
+  const [showModal, setShowModal] = useState(false);
+  const [detalleModal, setDetalleModal] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const formCleanTextErrors = () => {
     setErrors({});
     setFormData(initialState);
   };
-
+  const openModal = () => setShowModal(true);
+  const closeModal = () => setShowModal(false);
+  useEffect(() => {}, [detalleModal]);
   const handleSuccess = () => {
     Swal.fire({
       title: "Service registrado con éxito",
@@ -108,7 +112,6 @@ export default function NuevoServicio() {
       Estado: true,
       Fecha: new Date().toISOString().split("T")[0],
     };
-    console.log("Datos para backend:", formData);
     try {
       const response = await fetch(endpointsAPI.mantenimiento.nuevo.action, {
         method: endpointsAPI.mantenimiento.nuevo.method,
@@ -117,7 +120,14 @@ export default function NuevoServicio() {
         },
         body: JSON.stringify(dataParaBackend),
       });
-      if (response.ok) handleSuccess();
+      if (response.ok) {
+        handleSuccess();
+      } else {
+        const errorText = await response.text();
+        const objectTextError = JSON.parse(errorText);
+        console.log(objectTextError);
+        throw new Error(objectTextError.message || "Error desconocido");
+      }
     } catch (error) {
       handleError(error);
     }
@@ -240,7 +250,16 @@ export default function NuevoServicio() {
               value={formData.bujias}
               onChange={(value) => setFormData({ ...formData, bujias: value })}
             />
-            <div className="w-50 ms-2"></div>
+            <Checklistinput
+              label="Agregar Detalle"
+              name="Detalle"
+              value={showModal}
+              onChange={() => openModal()}
+              style={{
+                border:
+                  detalleModal == "" ? "1px solid orange" : "1px solid #0084ff",
+              }}
+            />
           </div>
           <div className="row w-100 mx-auto">
             <div className="col-md-6">
@@ -251,12 +270,12 @@ export default function NuevoServicio() {
                 placeholder="Kilometraje del Servicio"
                 value={formData.kmService}
                 className="flex-grow-1"
-                onChange={(e) =>
+                onChange={(e) => {
                   setFormData({
                     ...formData,
                     kmService: Number(e.target.value),
-                  })
-                }
+                  });
+                }}
                 required={true}
               />
             </div>
@@ -283,6 +302,36 @@ export default function NuevoServicio() {
           />
         </form>
       </FormCard>
+      <Modal show={showModal} onHide={closeModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Detalle del Servicio</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <textarea
+            className="form-control"
+            rows={10}
+            cols={100}
+            value={detalleModal}
+            onChange={(e) => setDetalleModal(e.target.value)}></textarea>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={closeModal}>
+            Cerrar
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setFormData({ ...formData, detalle: detalleModal });
+              closeModal();
+              Swal.fire({
+                title: "Detalle agregado al servicio",
+                icon: "success",
+              });
+            }}>
+            Guardar Detalle
+          </button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

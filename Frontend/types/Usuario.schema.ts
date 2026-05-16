@@ -19,11 +19,13 @@ export const PersonaSchemeValidator = z.object({
   nombre: z
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
-    .max(50, "El nombre no puede tener más de 50 caracteres"),
+    .max(50, "El nombre no puede tener más de 50 caracteres")
+    .regex(/^[^0-9]*$/, { message: "El nombre no puede contener números" }),
   apellido: z
     .string()
     .min(3, "El apellido debe tener al menos 3 caracteres")
-    .max(50, "El apellido no puede tener más de 50 caracteres"),
+    .max(50, "El apellido no puede tener más de 50 caracteres")
+    .regex(/^[^0-9]*$/, { message: "El apellido no puede contener números" }),
   dni: z
     .number()
     .min(1000000, "El DNI debe tener al menos 7 caracteres")

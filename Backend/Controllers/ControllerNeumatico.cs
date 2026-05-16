@@ -188,6 +188,7 @@ public class ControllerNeumatico : ControllerBase
     }
 
     // DELETE NEUMATICO
+    [Authorize(Policy = "RequireAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteNeumatico(int id)
     {

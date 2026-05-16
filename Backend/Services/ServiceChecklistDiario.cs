@@ -24,7 +24,8 @@ namespace Backend.Services
             IQueryable<ChecklistDiario> query = _context.ChecklistsDiarios;
             int totalRegistrosChecklistDiario = await query.CountAsync();
             List<ChecklistDiario>? checklistDiarios = await query
-                .OrderByDescending(c => c.IdChecklistDiario)
+                .AsNoTracking()
+                .OrderByDescending(c => c.Fecha)
                 .Skip((nroPagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();
@@ -112,7 +113,7 @@ namespace Backend.Services
         {
             var query = _context.ChecklistsDiarios.Where(c => c.IdVehiculo == vehiculoId);
             var totalRegistros = await query.CountAsync();
-            var items = await query
+            var items = await query.AsNoTracking().OrderByDescending(c=> c.Fecha)
                 .Skip((nroPagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();

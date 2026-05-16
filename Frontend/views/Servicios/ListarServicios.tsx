@@ -25,6 +25,7 @@ import "../../src/Components/css/scrollbar.css";
 export default function ListarServicios() {
   const [idBuscar, setIdBuscar] = useState<string>("");
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [metadataPage, setMetadataPage] = useState<
@@ -119,7 +120,16 @@ export default function ListarServicios() {
         <div className="d-flex justify-content-center align-items-center">
           <Button
             className="boton-modal border-0 p-1 w-50 rounded-1"
-            onClick={() => setShowModal(true)}>
+            onClick={() => {
+              setSelectedService(
+                serv.ServicioExcepcional
+                  ? "Detalle: " + serv.ServicioExcepcional
+                  : serv.Detalle
+                    ? "Detalle: " + serv.Detalle
+                    : "Sin detalles declarados",
+              );
+              setShowModal(true);
+            }}>
             Ver
           </Button>
           <Button
@@ -201,7 +211,7 @@ export default function ListarServicios() {
             rows={10}
             cols={100}
             readOnly
-            value={""}></textarea>
+            value={selectedService}></textarea>
         </ModalTable>
         <NavButtonPosition />
       </GeneralContainer>

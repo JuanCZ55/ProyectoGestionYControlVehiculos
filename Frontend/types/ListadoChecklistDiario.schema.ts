@@ -10,6 +10,7 @@ export const ListadoChecklistDiario = z.object({
   liquidoFrenos: z.boolean(),
   nivelAceite: z.boolean(),
   presionNeumaticos: z.boolean(),
+  nivelFrenos: z.boolean(),
   nivelRefrigerante: z.boolean(),
   nivelAguaParabrisas: z.boolean(),
   matafuegoVigente: z.boolean(),
@@ -28,6 +29,7 @@ export type ListadoChecklistDiarioType = {
   PresionNeumaticos: boolean;
   NivelRefrigerante: boolean;
   NivelAguaParabrisas: boolean;
+  NivelFrenos: boolean;
   MatafuegoVigente: boolean;
   Observaciones: string;
 };
@@ -45,9 +47,10 @@ export const ListadoChecklistDiarioApiParser = ListadoChecklistDiario.transform(
     PresionNeumaticos: apiData.presionNeumaticos,
     NivelRefrigerante: apiData.nivelRefrigerante,
     NivelAguaParabrisas: apiData.nivelAguaParabrisas,
+    NivelFrenos: apiData.nivelFrenos,
     MatafuegoVigente: apiData.matafuegoVigente,
     Observaciones: apiData.observaciones,
-  })
+  }),
 );
 
 export const PagedResponseSchema = z.object({

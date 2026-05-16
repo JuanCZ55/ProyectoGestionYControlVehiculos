@@ -44,7 +44,7 @@ export default function VehiculoAgregar() {
           endpointsAPI.vehiculos.buscarPorId.action(parseInt(id!)),
           {
             method: endpointsAPI.vehiculos.buscarPorId.method,
-          }
+          },
         );
         if (!responseFromApi.ok) throw new Error(await responseFromApi.text());
         const data = VehiculoApiParser.parse(await responseFromApi.json());
@@ -104,7 +104,7 @@ export default function VehiculoAgregar() {
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value.toUpperCase() });
   };
 
   return (

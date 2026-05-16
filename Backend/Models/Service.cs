@@ -57,6 +57,7 @@ namespace Backend.Models
         public string Proveedor { get; set; } = proveedor;
 
         [Required]
+        
         public int KmService { get; set; } = kmService;
 
         public string? Detalle { get; set; } = detalle;

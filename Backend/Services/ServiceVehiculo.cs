@@ -9,16 +9,19 @@ namespace Backend.Services
         private readonly AppDbContext _context;
         private readonly IMapper mapper;
         private readonly ServiceMatafuego serviceMatafuego;
-
+        private readonly IServiceProvider serviceProvider;
         public ServiceVehiculo(
             AppDbContext context,
             IMapper mapper,
             ServiceMatafuego serviceMatafuego
+            ,
+            IServiceProvider serviceProvider
         )
         {
             _context = context;
             this.mapper = mapper;
             this.serviceMatafuego = serviceMatafuego;
+            this.serviceProvider = serviceProvider;
         }
 
         // GET TODO VEHICULOS
@@ -201,6 +204,8 @@ namespace Backend.Services
         // ELIMINAR VEHICULO
         public async Task<bool> DeleteAsync(int id)
         {
+            if (await serviceProvider.GetService<ServiceDocumento>().ValidateNotDocumentsOnDelete(id, typesOfRecord.Vehiculo) is (bool result) && result)
+                throw new InvalidOperationException("El vehiculo tiene DOCUMENTOS registrados, eliminelos para poder realizar la eliminacion");
             var vehiculo = await _context.Vehiculos.FindAsync(id);
             if (vehiculo == null)
                 return false;

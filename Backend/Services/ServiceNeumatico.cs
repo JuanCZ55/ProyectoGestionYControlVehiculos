@@ -8,8 +8,7 @@ namespace Backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IMapper mapper;
-
-        public ServiceNeumatico(AppDbContext context, IMapper mapper)
+        public ServiceNeumatico(AppDbContext context, IMapper mapper )
         {
             _context = context;
             this.mapper = mapper;

@@ -8,11 +8,13 @@ namespace Backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IMapper mapper;
+        private readonly IServiceProvider serviceProvider;
 
-        public ServiceMatafuego(AppDbContext context, IMapper mapper)
+        public ServiceMatafuego(AppDbContext context, IMapper mapper, IServiceProvider serviceProvider)
         {
             _context = context;
             this.mapper = mapper;
+            this.serviceProvider = serviceProvider;
         }
 
         // GET TODO MATAFUEGOS
@@ -71,6 +73,8 @@ namespace Backend.Services
         // ELIMINAR MATAFUEGO
         public async Task<bool> DeleteAsync(int id)
         {
+            if (await serviceProvider.GetRequiredService<ServiceDocumento>().ValidateNotDocumentsOnDelete(id, typesOfRecord.Matafuego) is (bool result) && result)
+                throw new InvalidOperationException("El matafuego tiene DOCUMENTOS registrados, eliminelos para poder realizar la eliminacion");
             var matafuego = await _context.Matafuegos.FindAsync(id);
             if (matafuego == null)
                 return false;

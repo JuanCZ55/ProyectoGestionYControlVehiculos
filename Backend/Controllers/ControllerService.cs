@@ -55,20 +55,28 @@ public class ControllerService : ControllerBase
     public async Task<IActionResult> CreateService([FromBody] CreateServiceDto serviceDto)
     {
         Service service = mapper.Map<Service>(serviceDto);
-        var newService = await _serviceService.AddAsync(service);
-        await _serviceAuditoria.AddAsync(
-            new CreateAuditoriaDto
-            {
-                IdEntidad = newService.IdService,
-                Entidad = NombreClases.Service,
-                Accion = nameof(CreateService),
-            }
-        );
-        return CreatedAtAction(
-            nameof(GetServiceById),
-            new { id = newService.IdService },
-            newService
-        );
+        try
+        {
+            var newService = await _serviceService.AddAsync(service);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = newService.IdService,
+                    Entidad = NombreClases.Service,
+                    Accion = nameof(CreateService),
+                }
+            );
+            return CreatedAtAction(
+                nameof(GetServiceById),
+                new { id = newService.IdService },
+                newService
+            );
+        }
+        catch(InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        
     }
 
     // PUT ACTUALIZAR SERVICIO

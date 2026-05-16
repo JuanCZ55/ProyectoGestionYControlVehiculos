@@ -10,6 +10,8 @@ import z from "zod";
 import AltaBajaLogica from "../../src/Components/Table/AltaBajaLogica";
 import Swal from "sweetalert2";
 import { getUserFromToken } from "../../src/Utils/Auth";
+import { confirmarAccionPeligrosa } from "../../src/Components/confirmarAccionPeligrosa";
+
 export default function UsersList() {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UsuarioType | null>(null);
@@ -37,11 +39,7 @@ export default function UsersList() {
       showCloseButton: true,
     });
   };
-  useEffect(() => {
-    console.log(
-      "SUB" + getUserFromToken()?.sub + "ID" + selectedUser?.idUsuario,
-    );
-  });
+
   const tableData = metadataPage.data.map((usuario: UsuarioType) => (
     <tr
       key={usuario.idUsuario}
@@ -104,47 +102,47 @@ export default function UsersList() {
       });
     }
   };
-  const confirmarAccionPeligrosa = (funcionAEjecutar: () => void): void => {
-    setShowModal(false);
+  // const confirmarAccionPeligrosa = (funcionAEjecutar: () => void): void => {
+  //   setShowModal(false);
 
-    Swal.fire({
-      title: "¿Estás absolutamente seguro?",
-      text: 'Esta acción es irreversible. Escribe la palabra "Confirmar" para continuar:',
-      input: "text",
-      inputPlaceholder: "Escribe Confirmar",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, ejecutar",
-      cancelButtonText: "Cancelar",
-      didOpen: () => {
-        const confirmButton = Swal.getConfirmButton();
-        const input = Swal.getInput();
+  //   Swal.fire({
+  //     title: "¿Estás absolutamente seguro?",
+  //     text: 'Esta acción es irreversible. Escribe la palabra "Confirmar" para continuar:',
+  //     input: "text",
+  //     inputPlaceholder: "Escribe Confirmar",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonColor: "#3085d6",
+  //     confirmButtonText: "Sí, ejecutar",
+  //     cancelButtonText: "Cancelar",
+  //     didOpen: () => {
+  //       const confirmButton = Swal.getConfirmButton();
+  //       const input = Swal.getInput();
 
-        if (confirmButton) {
-          confirmButton.disabled = true;
-        }
+  //       if (confirmButton) {
+  //         confirmButton.disabled = true;
+  //       }
 
-        if (input) {
-          input.addEventListener("input", () => {
-            if (confirmButton) {
-              confirmButton.disabled = input.value !== "Confirmar";
-            }
-          });
-        }
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        funcionAEjecutar();
-        return;
-      }
-      if (result.isDismissed) {
-        setShowModal(true);
-        return;
-      }
-    });
-  };
+  //       if (input) {
+  //         input.addEventListener("input", () => {
+  //           if (confirmButton) {
+  //             confirmButton.disabled = input.value !== "Confirmar";
+  //           }
+  //         });
+  //       }
+  //     },
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       funcionAEjecutar();
+  //       return;
+  //     }
+  //     if (result.isDismissed) {
+  //       setShowModal(true);
+  //       return;
+  //     }
+  //   });
+  // };
   const handleResetPassword = async () => {
     try {
       const responseFromApi = await fetch(
@@ -269,7 +267,9 @@ export default function UsersList() {
               onClick={handleChangeRole}>{`Cambiar Rol`}</button>
             <button
               className="btn btn-dark"
-              onClick={() => confirmarAccionPeligrosa(handleResetPassword)}>
+              onClick={() =>
+                confirmarAccionPeligrosa(handleResetPassword, setShowModal)
+              }>
               {"Resetear Contraseña"}
             </button>
           </>

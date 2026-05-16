@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services
 {
+    public enum typesOfRecord{
+        Matafuego,
+        Vehiculo
+    }
     public class ServiceDocumento
     {
         private readonly AppDbContext _context;
@@ -191,5 +195,16 @@ namespace Backend.Services
         }
 
         // AL DE CREACION HAY Q COLOCARLE LA LOGICA DE CREACION DE CARPETAS Y RENOMBRAMIENTO DE ARCHIVOS Y LA CREACION DEL URLPATH
+        public async Task<bool> ValidateNotDocumentsOnDelete(int idRecord, typesOfRecord type)
+        {
+            if(type == typesOfRecord.Matafuego)
+            {
+                return await _context.Documentos.FirstOrDefaultAsync(m => m.IdMatafuego == idRecord) != null;
+            }
+            else
+            {
+                return await _context.Documentos.FirstOrDefaultAsync(v => v.IdVehiculo == idRecord) != null;
+            }
+        }
     }
 }

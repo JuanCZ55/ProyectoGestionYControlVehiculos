@@ -104,23 +104,32 @@ public class ControllerMatafuego : ControllerBase
     }
 
     // DELETE MATAFUEGO
+    [Authorize(Policy = "RequireAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteMatafuego(int id)
     {
-        var deleted = await _serviceMatafuego.DeleteAsync(id);
-        if (!deleted)
+        try
         {
-            return NotFound();
-        }
-        await _serviceAuditoria.AddAsync(
-            new CreateAuditoriaDto
+            var deleted = await _serviceMatafuego.DeleteAsync(id);
+            if (!deleted)
             {
-                IdEntidad = id,
-                Entidad = NombreClases.Matafuego,
-                Accion = nameof(DeleteMatafuego),
+                return NotFound("No se elimino el matafuego");
             }
-        );
-        return NoContent();
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Matafuego,
+                    Accion = nameof(DeleteMatafuego),
+                }
+            );
+            return NoContent();
+        }
+        catch(InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        
     }
 
     // BAJA LOGICA MATAFUEGO

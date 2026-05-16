@@ -18,6 +18,7 @@ import { ButtonEdit } from "../../src/Components/Table/ModalTableButtonsAll";
 import { PaginatorForTable } from "../../src/Components/Table/Paginator";
 import AltaBajaLogica from "../../src/Components/Table/AltaBajaLogica";
 import { NavButtonPosition } from "../../src/Components";
+import { confirmarAccionPeligrosa } from "../../src/Components/confirmarAccionPeligrosa";
 export const ListarMatafuegos = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMatafuego, setSelectedMatafuego] =
@@ -53,7 +54,7 @@ export const ListarMatafuegos = () => {
           endpointsAPI.matafuegos.listar.action(currentPage, 10),
           {
             method: endpointsAPI.matafuegos.listar.method,
-          }
+          },
         );
         if (!responseFromApi.ok) {
           throw new Error("Error en la respuesta del servidor");
@@ -62,7 +63,7 @@ export const ListarMatafuegos = () => {
         const dataFromApi = await responseFromApi.json();
         const matafuegosParser = z.array(MatafuegoApiParser);
         const matafuegosParsedFromApi: MatafuegoType[] = matafuegosParser.parse(
-          dataFromApi.items
+          dataFromApi.items,
         );
         const dataParsed: PaginaResponseType<MatafuegoType> = {
           data: matafuegosParsedFromApi,
@@ -112,13 +113,13 @@ export const ListarMatafuegos = () => {
             (selectedMatafuego &&
               "NroSerie: " +
                 selectedMatafuego?.NroSerie +
-                "Proveedor: " +
+                " - Proveedor: " +
                 selectedMatafuego?.Proveedor +
                 " - Fecha de Carga: " +
                 ParserDatesToStringMessage(selectedMatafuego!.FechaCarga) +
                 " - Fecha de Vencimiento: " +
                 ParserDatesToStringMessage(
-                  selectedMatafuego!.FechaVencimiento
+                  selectedMatafuego!.FechaVencimiento,
                 ) +
                 " - Estado: " +
                 (selectedMatafuego!.Estado ? "Activo" : "Inactivo")) ||
@@ -130,20 +131,20 @@ export const ListarMatafuegos = () => {
               <ButtonEdit
                 id={selectedMatafuego!.IdMatafuego!.toString()}
                 endpoint={endpointFront.matafuegos.editar.action(
-                  selectedMatafuego!.IdMatafuego!
+                  selectedMatafuego!.IdMatafuego!,
                 )}
               />
               <AltaBajaLogica
                 endpointAlta={endpointsAPI.matafuegos.altaLogica.action(
                   selectedMatafuego && selectedMatafuego.IdMatafuego
                     ? selectedMatafuego.IdMatafuego
-                    : 0
+                    : 0,
                 )}
                 methodAlta={endpointsAPI.matafuegos.altaLogica.method}
                 endpointBaja={endpointsAPI.matafuegos.bajaLogica.action(
                   selectedMatafuego && selectedMatafuego.IdMatafuego
                     ? selectedMatafuego.IdMatafuego
-                    : 0
+                    : 0,
                 )}
                 methodBaja={endpointsAPI.matafuegos.bajaLogica.method}
                 estado={selectedMatafuego!.Estado!}
@@ -162,6 +163,12 @@ export const ListarMatafuegos = () => {
                     }),
                   }));
                 }}></AltaBajaLogica>
+              <ButtonEdit
+                id={selectedMatafuego!.IdMatafuego!.toString()}
+                endpoint={endpointFront.matafuegos.editar.action(
+                  selectedMatafuego!.IdMatafuego!,
+                )}
+              />
             </>
           )}
         </ModalTable>

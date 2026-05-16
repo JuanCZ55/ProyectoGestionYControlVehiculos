@@ -18,7 +18,9 @@ import { PaginatorForTable } from "../../src/Components/Table/Paginator";
 import endpointsAPI, {
   endpointFront,
 } from "../../src/Components/Routes/Enrouters";
-
+import { confirmarAccionPeligrosa } from "../../src/Components/confirmarAccionPeligrosa";
+import Swal from "sweetalert2";
+import { getUserFromToken } from "../../src/Utils/Auth";
 const headers = [
   "Marca",
   "Modelo",
@@ -26,6 +28,7 @@ const headers = [
   "Patente",
   "Numero de Chasis",
   "Numero de Motor",
+  "R-Aux",
   "Matafuego",
   "Estado",
 ];
@@ -36,6 +39,7 @@ const colWidths = [
   "65px",
   "200px",
   "150px",
+  "70px",
   "70px",
   "70px",
 ];
@@ -50,6 +54,7 @@ export default function VehiculosListar() {
   const [selectedProveedor, setSelectedProveedor] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filtroActivo, setFiltroActivo] = useState<string | null>("opcion1");
+  const [reloadPage, setReloadPage] = useState<number>(0);
   const [metadataPage, setMetadataPage] = useState<
     PaginaResponseType<VehiculoSchemaType>
   >({
@@ -107,8 +112,41 @@ export default function VehiculosListar() {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [currentPage, filtroActivo]);
+  }, [currentPage, filtroActivo, reloadPage]);
+  const handleDelete = async () => {
+    if (!selectedId) return;
 
+    try {
+      const response = await fetch(
+        endpointsAPI.vehiculos.eliminar.action(parseInt(selectedId)),
+        {
+          method: endpointsAPI.vehiculos.eliminar.method,
+        },
+      );
+      if (response.ok) {
+        Swal.fire({
+          title: "Vehículo eliminado",
+          text: "El vehículo ha sido eliminado correctamente.",
+          icon: "success",
+          showCloseButton: true,
+        });
+        setReloadPage((prev) => prev + 1);
+        return;
+      }
+      const errorMessage = await response.json();
+      throw new Error(errorMessage.message || "Error al eliminar el vehículo");
+    } catch (error) {
+      Swal.fire({
+        title: "Error al eliminar el vehículo",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Ha ocurrido un error inesperado",
+        icon: "error",
+        showCloseButton: true,
+      });
+    }
+  };
   const tableData = metadataPage.data.map((vehiculo: VehiculoSchemaType) => (
     <tr
       key={vehiculo.idVehiculo}
@@ -127,13 +165,15 @@ export default function VehiculosListar() {
       data-patente={vehiculo.Patente}
       data-estado={vehiculo.Estado}
       data-nroSerie={vehiculo.Matafuego?.NroSerie}
-      data-proveedor={vehiculo.Matafuego?.Proveedor}>
+      data-proveedor={vehiculo.Matafuego?.Proveedor}
+      data-auxilio={vehiculo.CantidadAuxilios}>
       <td>{vehiculo.Marca}</td>
       <td>{vehiculo.Modelo}</td>
       <td>{vehiculo.Anio}</td>
       <td>{vehiculo.Patente}</td>
       <td>{vehiculo.NumeroChasis}</td>
       <td>{vehiculo.NumeroMotor}</td>
+      <td>{vehiculo.CantidadAuxilios}</td>
       <td>{vehiculo.Matafuego ? "Sí" : "No"}</td>
       <td>{vehiculo.Estado ? "Activo" : "Inactivo"}</td>
     </tr>
@@ -209,6 +249,20 @@ export default function VehiculosListar() {
               setShowModal(false);
             }}
           />
+          {getUserFromToken()?.role == 1 && (
+            <button
+              className="btn btn-dark"
+              onClick={() =>
+                confirmarAccionPeligrosa(
+                  handleDelete,
+                  setShowModal,
+                  "Si elimina el vehiculo, tambien eliminara sus checklist, services y se desasociara de los matafuegos y/o neumaticos relacionados. ¿Confirma que desea eliminar el vehículo?",
+                  'Esta acción es irreversible. Escribe la palabra "Confirmar" para continuar:',
+                )
+              }>
+              {"Eliminar Vehículo"}
+            </button>
+          )}
         </ModalTable>
       </TableContainer>
       <PaginatorForTable

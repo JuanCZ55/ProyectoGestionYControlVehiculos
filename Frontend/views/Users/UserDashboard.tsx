@@ -88,7 +88,9 @@ export function UserDashboard() {
           const dataFromApi = await responseFromApi.json();
           setUsuario(dataFromApi);
           setNewEmail(dataFromApi.gmail);
+          console.log("Usuario cargado:", dataFromApi);
           if (dataFromApi.persona) {
+            //esto no esta entrando correctamente, revisar
             setPersona(dataFromApi.persona);
           }
         } catch (error) {
@@ -102,9 +104,13 @@ export function UserDashboard() {
   const handleClosePersonaModal = () => {
     setShowPersonaModal(false);
     setErrors({});
-    setPersona(usuario!.persona!);
   };
-  const handleShowPersonaModal = () => setShowPersonaModal(true);
+  const handleShowPersonaModal = () => {
+    if (usuario?.persona) {
+      setPersona(usuario.persona);
+    }
+    setShowPersonaModal(true);
+  };
   const handleCloseGmailModal = () => setShowGmailModal(false);
   const handleShowGmailModal = () => setShowGmailModal(true);
 
@@ -323,12 +329,12 @@ export function UserDashboard() {
         }
         throw new Error(errorMessage);
       }
+
+      setUsuario({ ...usuario!, persona: payload });
+      setPersona(payload);
+
       handleClosePersonaModal();
       Swal.fire("Éxito", "Datos personales actualizados", "success");
-
-      if (usuario) {
-        setUsuario({ ...usuario, persona: persona });
-      }
     } catch (error) {
       handleClosePersonaModal();
       handleError(error);
@@ -610,7 +616,7 @@ export function UserDashboard() {
               <input
                 type="date"
                 className="form-control bg-dark text-white border-secondary"
-                style={{ colorScheme: "dark" }} // Mágia para que el calendario nativo se vea oscuro
+                style={{ colorScheme: "dark" }}
                 name="fechaNac"
                 value={
                   typeof (persona.fechaNac as any) === "string"

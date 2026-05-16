@@ -75,7 +75,7 @@ export default function VehiculoAgregar() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: value.toUpperCase() });
   };
 
   return (
@@ -152,7 +152,7 @@ export default function VehiculoAgregar() {
                   type="text"
                   name="Patente"
                   placeholder="Ej: AB123CD"
-                  value={formData.Patente}
+                  value={formData.Patente.toUpperCase()}
                   onChange={handleChange}
                   required={true}
                   error={errors.Patente}

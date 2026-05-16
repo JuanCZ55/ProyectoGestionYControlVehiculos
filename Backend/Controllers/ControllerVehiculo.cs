@@ -118,23 +118,33 @@ public class ControllerVehiculo : ControllerBase
     }
 
     // DELETE VEHICULO
+    [Authorize(Policy = "RequireAdmin")]
     [HttpDelete("{id}")]
+    
     public async Task<IActionResult> DeleteVehiculo(int id)
     {
-        var deleted = await _serviceVehiculo.DeleteAsync(id);
-        if (!deleted)
+        try
         {
-            return NotFound();
-        }
-        await _serviceAuditoria.AddAsync(
-            new CreateAuditoriaDto
+            var deleted = await _serviceVehiculo.DeleteAsync(id);
+            if (!deleted)
             {
-                IdEntidad = id,
-                Entidad = NombreClases.Vehiculo,
-                Accion = nameof(DeleteVehiculo),
+                return NotFound("No se elimino el registro");
             }
-        );
-        return NoContent();
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = id,
+                    Entidad = NombreClases.Vehiculo,
+                    Accion = nameof(DeleteVehiculo),
+                }
+            );
+            return NoContent();
+        }
+        catch(InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        
     }
 
     // BAJA LOGICA VEHICULO

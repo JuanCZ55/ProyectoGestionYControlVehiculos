@@ -1,4 +1,5 @@
 using AutoMapper;
+using Backend.Helpers;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +43,10 @@ namespace Backend.Services
         // NUEVO SERVICIO
         public async Task<Service> AddAsync(Service service)
         {
+            if (ValidarService.validarTodosLosItemsEnFalse(service))
+                throw new InvalidOperationException("No puede crear un servicio con todos los campos vacios");
+            if (service.KmService == 0 && await this.BuscarServicioConKilometraje(service.IdVehiculo) is (Service servicioConKilometraje) && servicioConKilometraje.KmService > 0)
+                throw new InvalidOperationException("El vehiculo tiene registros con kilometraje, por lo tanto no puede ser 0");
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
             return service;
@@ -57,7 +62,10 @@ namespace Backend.Services
             _context.Services.Update(serviceFinded);
             await _context.SaveChangesAsync();
         }
-
+        public async Task<Service?> BuscarServicioConKilometraje(int idVehiculo)
+        {
+            return _context.Services.Where(service => (service.IdVehiculo == idVehiculo && service.KmService > 0)).FirstOrDefault();
+        }
         // ELIMINAR SERVICIO
         public async Task<bool> DeleteAsync(int id)
         {
@@ -103,7 +111,7 @@ namespace Backend.Services
         {
             var query = _context.Services.Where(s => s.IdVehiculo == vehiculoId);
             var totalRegistros = await query.CountAsync();
-            var items = await query
+            var items = await query.OrderByDescending(s => s.IdService)
                 .Skip((nroPagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();
@@ -133,5 +141,10 @@ namespace Backend.Services
             _context.Services.Update(service);
             return await _context.SaveChangesAsync() > 0;
         }
+        public async Task<Service?> getUltimoServiceByVehiculo(int idVehiculo)
+        {
+            return await _context.Services.OrderByDescending(service => service.Fecha).FirstOrDefaultAsync(s => s.IdVehiculo == idVehiculo);
+        }
+        
     }
 }

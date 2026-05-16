@@ -9,11 +9,13 @@ public class ControllerAuth : ControllerBase
 {
     private readonly ServiceAuth _serviceAuth;
     private readonly ServiceAuditoria _serviceAuditoria;
+    private readonly ServicePassword _servicePassword;
 
-    public ControllerAuth(ServiceAuth serviceAuth, ServiceAuditoria serviceAuditoria)
+    public ControllerAuth(ServiceAuth serviceAuth, ServiceAuditoria serviceAuditoria, ServicePassword servicePassword)
     {
         _serviceAuth = serviceAuth;
         _serviceAuditoria = serviceAuditoria;
+        _servicePassword = servicePassword;
     }
 
     [Authorize(Policy = "RequireAdmin")]
@@ -62,4 +64,18 @@ public class ControllerAuth : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
+    //[HttpGet("contrasena")]
+    //public async Task<IActionResult> GetContrasena()
+    //{
+    //    string password = _servicePassword.HashPassword("Prueba1@");
+
+    //    return Ok(new { password });
+    //}
+    //[HttpGet("contrasenavalidate")]
+    //public async Task<IActionResult> GetValidate()
+    //{
+    //    bool password = _servicePassword.VerifyPassword("123456","$2a$11$nkC0chfRG91ptzs/b6axmevKvm9egWW2z.q8a9IuvaIVrRGoe6AHO");
+
+    //    return Ok(new { password });
+    //}
 }
