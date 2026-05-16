@@ -19,11 +19,14 @@ import { PaginatorForTable } from "../../src/Components/Table/Paginator";
 import AltaBajaLogica from "../../src/Components/Table/AltaBajaLogica";
 import { NavButtonPosition } from "../../src/Components";
 import { confirmarAccionPeligrosa } from "../../src/Components/confirmarAccionPeligrosa";
+import { getUserFromToken } from "../../src/Utils/Auth";
+
 export const ListarMatafuegos = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMatafuego, setSelectedMatafuego] =
     useState<MatafuegoType | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [reloadPage, setReloadPage] = useState<number>(0);
   const [metadataPage, setMetadataPage] = useState<
     PaginaResponseType<MatafuegoType>
   >({
@@ -80,7 +83,41 @@ export const ListarMatafuegos = () => {
       }
     };
     fetchMatafuegos();
-  }, [currentPage]);
+  }, [currentPage, reloadPage]);
+  const handleDelete = async () => {
+    if (!selectedMatafuego) return;
+
+    try {
+      const response = await fetch(
+        endpointsAPI.matafuegos.eliminar.action(selectedMatafuego.IdMatafuego!),
+        {
+          method: endpointsAPI.matafuegos.eliminar.method,
+        },
+      );
+      if (response.ok) {
+        Swal.fire({
+          title: "Matafuego eliminado",
+          text: "El matafuego ha sido eliminado correctamente.",
+          icon: "success",
+          showCloseButton: true,
+        });
+        setReloadPage((prev) => prev + 1);
+        return;
+      }
+      const errorMessage = await response.json();
+      throw new Error(errorMessage.message || "Error al eliminar el matafuego");
+    } catch (error) {
+      Swal.fire({
+        title: "Error al eliminar el matafuego",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Ha ocurrido un error inesperado",
+        icon: "error",
+        showCloseButton: true,
+      });
+    }
+  };
   const tableData = metadataPage.data.map((matafuego: MatafuegoType) => (
     <tr
       key={matafuego.IdMatafuego}
@@ -163,12 +200,20 @@ export const ListarMatafuegos = () => {
                     }),
                   }));
                 }}></AltaBajaLogica>
-              <ButtonEdit
-                id={selectedMatafuego!.IdMatafuego!.toString()}
-                endpoint={endpointFront.matafuegos.editar.action(
-                  selectedMatafuego!.IdMatafuego!,
-                )}
-              />
+              {getUserFromToken()?.role == 1 && (
+                <button
+                  className="btn btn-dark"
+                  onClick={() =>
+                    confirmarAccionPeligrosa(
+                      handleDelete,
+                      setShowModal,
+                      "Si elimina el matafuego, se desasociara de los vehiculos relacionados. ¿Confirma que desea eliminar el matafuego?",
+                      'Esta acción es irreversible. Escribe la palabra "Confirmar" para continuar:',
+                    )
+                  }>
+                  {"Eliminar Matafuego"}
+                </button>
+              )}
             </>
           )}
         </ModalTable>

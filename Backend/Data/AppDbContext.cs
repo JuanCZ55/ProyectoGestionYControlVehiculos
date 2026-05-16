@@ -43,7 +43,7 @@ public class AppDbContext : DbContext
             .Entity<Matafuego>()
             .HasOne(v => v.Vehiculo)
             .WithOne(m => m.Matafuego)
-            .HasForeignKey<Vehiculo>(v => v.IdMatafuego);
+            .HasForeignKey<Vehiculo>(v => v.IdMatafuego).OnDelete(DeleteBehavior.SetNull);
         modelBuilder.Entity<Vehiculo>().HasIndex(v => v.IdMatafuego).IsUnique();
     }
 }
