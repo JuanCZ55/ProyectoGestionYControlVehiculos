@@ -190,11 +190,19 @@ namespace Backend.Services
             return true;
         }
 
-        public async Task<bool> resetPassword(int id, string contraseña)
+        public async Task<bool> resetPassword(int id, string contraseña, string? oldPassword)
         {
             Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
             if (usuarioFinded == null)
                 throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
+
+            if (
+                oldPassword != null
+                && !_servicePassword.VerifyPassword(oldPassword!, usuarioFinded.Contrasena)
+            )
+            {
+                throw new InvalidOperationException("La contraseña antigua es incorrecta");
+            }
             string password = _servicePassword.HashPassword(contraseña);
             usuarioFinded.Contrasena = password;
             await _context.SaveChangesAsync();

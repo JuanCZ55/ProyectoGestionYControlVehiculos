@@ -1,4 +1,4 @@
-export const API_ROUTE = "http://localhost:5097/api";
+export const API_ROUTE = "https://localhost:7283/api";
 
 export const endpointsAPI = {
   vehiculos: {

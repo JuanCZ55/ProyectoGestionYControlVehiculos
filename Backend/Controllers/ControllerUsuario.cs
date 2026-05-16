@@ -235,7 +235,7 @@ public class ControllerUsuario : ControllerBase
     {
         try
         {
-            await _serviceUsuario.resetPassword(id, "Reset123456!");
+            await _serviceUsuario.resetPassword(id, "Reset123456!", null);
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
@@ -260,12 +260,16 @@ public class ControllerUsuario : ControllerBase
     [HttpPut("cambiarContrasena/{id}")]
     public async Task<IActionResult> updatePassword(
         int id,
-        [FromBody] UpdatePasswordDto newPassword
+        [FromBody] UpdatePasswordDto passwordDto
     )
     {
         try
         {
-            await _serviceUsuario.resetPassword(id, newPassword.NewPassword);
+            await _serviceUsuario.resetPassword(
+                id,
+                passwordDto.NewPassword,
+                passwordDto.currentPassword
+            );
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
@@ -278,11 +282,11 @@ public class ControllerUsuario : ControllerBase
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { mensaje = ex.Message });
+            return NotFound(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { mensaje = ex.Message });
+            return BadRequest(new { message = ex.Message });
         }
     }
 

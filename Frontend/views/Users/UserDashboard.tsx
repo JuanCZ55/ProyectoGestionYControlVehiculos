@@ -33,7 +33,6 @@ export function UserDashboard() {
   const [newEmail, setNewEmail] = useState<string>("");
   const [validEmail, setValidEmail] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  // Estado editable para el formulario
   const [persona, setPersona] = useState<PersonaType>({
     idPersona: 0,
     nombre: "",
@@ -43,21 +42,16 @@ export function UserDashboard() {
     estado: false,
   });
 
-  // 1. Agregamos un estado para controlar el mensaje de error visual
   const [gmailError, setGmailError] = useState<string>("");
 
-  // 2. Creamos una función exclusiva para manejar los cambios del correo
   const handleGmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nuevoValor = e.target.value;
 
-    // Tu patrón exacto de C#
     const emailRegex =
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|gob|com\.[a-z]{2}|gob\.[a-z]{2})$/;
 
-    // Actualizamos el estado del usuario (¡No de la persona!)
     setNewEmail(nuevoValor);
 
-    // Evaluamos el patrón: si no pasa, mostramos error. Si pasa, lo limpiamos.
     if (!emailRegex.test(nuevoValor)) {
       setGmailError("El correo debe ser válido (ej: nombre@gmail.com)");
       setValidEmail(false);
@@ -94,7 +88,6 @@ export function UserDashboard() {
           const dataFromApi = await responseFromApi.json();
           setUsuario(dataFromApi);
           setNewEmail(dataFromApi.gmail);
-          // Llenamos el estado editable con los datos recién traídos de la BD
           if (dataFromApi.persona) {
             setPersona(dataFromApi.persona);
           }
@@ -115,12 +108,11 @@ export function UserDashboard() {
   const handleCloseGmailModal = () => setShowGmailModal(false);
   const handleShowGmailModal = () => setShowGmailModal(true);
 
-  // ESTILOS ADAPTADOS AL DARK MODE
   const cardStyles = {
     borderRadius: "15px",
     boxShadow: "0 10px 20px rgba(0,0,0,0.3)",
     border: "1px solid rgba(255, 255, 255, 0.05)",
-    backgroundColor: "#212529", // Fondo oscuro de tarjeta
+    backgroundColor: "#212529",
     height: "100%",
   };
 
@@ -163,7 +155,6 @@ export function UserDashboard() {
         throw new Error(errorMessage);
       }
 
-      // Si el fetch sale bien, cerramos el modal y avisamos
       usuario!.gmail = newEmail;
       handleCloseGmailModal();
       Swal.fire("Éxito", "Correo actualizado", "success");
@@ -178,6 +169,7 @@ export function UserDashboard() {
     Swal.fire({
       title: "Cambiar Contraseña",
       html: `
+      <input type="password" id="currentPassword" class="swal2-input" placeholder="Contraseña actual">
       <input type="password" id="pass1" class="swal2-input" placeholder="Nueva contraseña">
       <input type="password" id="pass2" class="swal2-input" placeholder="Repetir contraseña">
     `,
@@ -187,21 +179,22 @@ export function UserDashboard() {
       focusConfirm: false,
 
       preConfirm: () => {
+        const currentPassword = (
+          document.getElementById("currentPassword") as HTMLInputElement
+        ).value;
         const pass1 = (document.getElementById("pass1") as HTMLInputElement)
           .value;
         const pass2 = (document.getElementById("pass2") as HTMLInputElement)
           .value;
 
-        // EL PATRÓN REGEX MAGICO
         const passwordRegex =
           /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
-        if (!pass1 || !pass2) {
-          Swal.showValidationMessage("Por favor completa ambos campos");
+        if (!currentPassword || !pass1 || !pass2) {
+          Swal.showValidationMessage("Por favor completa todos los campos");
           return false;
         }
 
-        // Evaluamos la contraseña contra el patrón
         if (!passwordRegex.test(pass1)) {
           Swal.showValidationMessage(
             "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo especial",
@@ -213,12 +206,15 @@ export function UserDashboard() {
           Swal.showValidationMessage("Las contraseñas no coinciden");
           return false;
         }
-
-        return pass1;
+        const lista: string[] = [currentPassword, pass1];
+        return lista;
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const newPassword = result.value;
+        const newPassword = result.value ? (result.value as string[])[1] : "";
+        const currentPassword = result.value
+          ? (result.value as string[])[0]
+          : "";
 
         try {
           const response = await fetch(
@@ -226,14 +222,25 @@ export function UserDashboard() {
             {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ newPassword: newPassword }),
+              body: JSON.stringify({
+                newPassword: newPassword,
+                currentPassword: currentPassword,
+              }),
             },
           );
 
           if (!response.ok) {
             const messageError = await response.text();
             const errorMessage = JSON.parse(messageError);
+            console.log("Respuesta de error del servidor:", errorMessage);
+            if (
+              errorMessage.errors &&
+              Object.values(errorMessage.errors).length > 0
+            ) {
+              console.log("Errores de validación:", errorMessage.errors);
 
+              throw new Error(Object.values(errorMessage.errors)[0][0]);
+            }
             if (errorMessage.message) {
               throw new Error(errorMessage.message);
             }
@@ -250,8 +257,8 @@ export function UserDashboard() {
           Swal.fire("¡Éxito!", "Tu contraseña ha sido actualizada.", "success");
         } catch (error) {
           Swal.fire(
-            "Error",
-            `No se pudo actualizar la contraseña. ${error}`,
+            "Error. No se pudo actualizar la contraseña.",
+            `${error}`,
             "error",
           );
         }
@@ -261,7 +268,6 @@ export function UserDashboard() {
 
   const handlePersonaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    // Manejo seguro para que la fecha no explote si se borra en el input
     const finalValue =
       type === "date"
         ? value
@@ -289,7 +295,6 @@ export function UserDashboard() {
       return true;
     }
   };
-  // Función lista para que agregues tu fetch PUT/POST para guardar la persona
   const handleGuardarPersona = async () => {
     try {
       if (!validateForm()) return;
@@ -300,7 +305,7 @@ export function UserDashboard() {
           : fechaCruda.toISOString().split("T")[0];
       const payload = {
         ...persona,
-        fechaNac: fechaFormateada, // "YYYY-MM-DD" estricto
+        fechaNac: fechaFormateada, //
       };
       const response = await fetch(
         endpointsAPI.persona.actualizarPersona.action(persona.idPersona),
@@ -318,11 +323,9 @@ export function UserDashboard() {
         }
         throw new Error(errorMessage);
       }
-      // Si el fetch sale bien, cerramos el modal y avisamos
       handleClosePersonaModal();
       Swal.fire("Éxito", "Datos personales actualizados", "success");
 
-      // Opcional: Actualizar el estado visual del usuario
       if (usuario) {
         setUsuario({ ...usuario, persona: persona });
       }
@@ -403,8 +406,8 @@ export function UserDashboard() {
             width: "150px",
             height: "150px",
             fontSize: "4rem",
-            border: "4px solid rgba(13, 110, 253, 0.3)", // Borde azul sutil estilo premium
-            boxShadow: "0 0 20px rgba(13, 110, 253, 0.15)", // Resplandor azul
+            border: "4px solid rgba(13, 110, 253, 0.3)",
+            boxShadow: "0 0 20px rgba(13, 110, 253, 0.15)",
             cursor: "pointer",
             overflow: "hidden",
             transition: "all 0.3s ease",
@@ -525,9 +528,6 @@ export function UserDashboard() {
         </div>
       </div>
 
-      {/* ================================================== */}
-      {/* MODAL DE EDICIÓN DE PERSONA CON DISEÑO DARK MODE   */}
-      {/* ================================================== */}
       <Modal
         show={showPersonaModal}
         onHide={handleClosePersonaModal}
