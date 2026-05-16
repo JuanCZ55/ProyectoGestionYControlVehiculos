@@ -42,8 +42,8 @@ export const EditarNeumaticos = () => {
       type === "checkbox"
         ? checked
         : name == "NroSerie" || name == "KmRodados"
-        ? parseInt(value) || 0
-        : value;
+          ? parseInt(value) || 0
+          : value;
 
     setNeumatico({
       ...getNeumatico,
@@ -57,7 +57,7 @@ export const EditarNeumaticos = () => {
           endpointsAPI.neumaticos.buscarPorId.action(parseInt(id!)),
           {
             method: endpointsAPI.neumaticos.buscarPorId.method,
-          }
+          },
         );
         const data = await responseFromApi.json();
         const dataParsed = NeumaticoApiParser.parse(data);
@@ -128,7 +128,7 @@ export const EditarNeumaticos = () => {
       confirmButtonText: "Aceptar y continuar",
     }).then((result) => {
       if (result.isConfirmed) {
-        navigate(endpointFront.neumaticos.gestion.action);
+        navigate(endpointFront.neumaticos.listar.action);
         return;
       } else {
         return;
@@ -172,7 +172,7 @@ export const EditarNeumaticos = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(dataParaBackend),
-        }
+        },
       );
       if (!response.ok) {
         const text = await response.text();
@@ -231,7 +231,7 @@ export const EditarNeumaticos = () => {
             error={getErrors.Medida}></FormInput>
           <ChecklistInput
             name="Estandar" //todo: El backend tira que Estandar es requerido
-            label="Estandar"
+            label={getNeumatico.Estandar ? "Estandar" : "Recapado"}
             value={getNeumatico.Estandar!}
             onChange={(value) =>
               setNeumatico({ ...getNeumatico, Estandar: value })
@@ -249,7 +249,11 @@ export const EditarNeumaticos = () => {
             error={getErrors.KmRodados}></FormInput>
           <ChecklistInput
             name="DesgasteIrregular"
-            label="Desgaste Irregular"
+            label={
+              getNeumatico.DesgasteIrregular
+                ? "Con Desgaste Irregular"
+                : "Sin Desgaste Irregular"
+            }
             value={getNeumatico.DesgasteIrregular!}
             onChange={(value) =>
               setNeumatico({ ...getNeumatico, DesgasteIrregular: value })

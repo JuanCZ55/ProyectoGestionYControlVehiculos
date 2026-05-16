@@ -16,12 +16,16 @@ import {
 import AltaBajaLogica from "../../src/Components/Table/AltaBajaLogica";
 import { PaginatorForTable } from "../../src/Components/Table/Paginator";
 import z from "zod";
+import { NavButtonPosition } from "../../src/Components";
+import { confirmarAccionPeligrosa } from "../../src/Components/confirmarAccionPeligrosa";
+import { getUserFromToken } from "../../src/Utils/Auth";
 
 export const ListarNeumaticos = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedNeumatico, setSelectedNeumatico] =
     useState<NeumaticoType | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [reloadPage, setReloadPage] = useState(0);
   const [metadataPage, setMetadataPage] = useState<
     PaginaResponseType<NeumaticoType>
   >({
@@ -45,6 +49,40 @@ export const ListarNeumaticos = () => {
       showCloseButton: true,
     });
   };
+  const handleDelete = async () => {
+    if (!selectedNeumatico) return;
+
+    try {
+      const response = await fetch(
+        endpointsAPI.neumaticos.eliminar.action(selectedNeumatico.IdNeumatico!),
+        {
+          method: endpointsAPI.neumaticos.eliminar.method,
+        },
+      );
+      if (response.ok) {
+        Swal.fire({
+          title: "Neumático eliminado",
+          text: "El neumático ha sido eliminado correctamente.",
+          icon: "success",
+          showCloseButton: true,
+        });
+        setReloadPage((prev) => prev + 1);
+        return;
+      }
+      const errorMessage = await response.json();
+      throw new Error(errorMessage.message || "Error al eliminar el neumático");
+    } catch (error) {
+      Swal.fire({
+        title: "Error al eliminar el neumático",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Ha ocurrido un error inesperado",
+        icon: "error",
+        showCloseButton: true,
+      });
+    }
+  };
   const tableData = metadataPage.data.map((neumatico: NeumaticoType) => (
     <tr
       key={neumatico.IdNeumatico}
@@ -67,7 +105,7 @@ export const ListarNeumaticos = () => {
           endpointsAPI.neumaticos.listar.action(currentPage, 10),
           {
             method: endpointsAPI.neumaticos.listar.method,
-          }
+          },
         );
         if (!responseFromApi.ok) {
           throw new Error("Error en la respuesta del servidor");
@@ -76,7 +114,7 @@ export const ListarNeumaticos = () => {
         console.log(dataFromApi);
         const neumaticosParser = z.array(NeumaticoApiParser);
         const neumaticosParsedFromApi: NeumaticoType[] = neumaticosParser.parse(
-          dataFromApi.items
+          dataFromApi.items,
         );
         console.log("No paso");
         const dataParsed: PaginaResponseType<NeumaticoType> = {
@@ -92,7 +130,7 @@ export const ListarNeumaticos = () => {
       }
     };
     fetchNeumaticos();
-  }, [currentPage]);
+  }, [currentPage, reloadPage]);
   return (
     <>
       <TableContainer title="Listado de Neumaticos">
@@ -136,20 +174,20 @@ export const ListarNeumaticos = () => {
               <ButtonEdit
                 id={selectedNeumatico!.IdNeumatico!.toString()}
                 endpoint={endpointFront.neumaticos.editar.action(
-                  selectedNeumatico.IdNeumatico!
+                  selectedNeumatico.IdNeumatico!,
                 )}
               />
               <AltaBajaLogica
                 endpointAlta={endpointsAPI.neumaticos.altaLogica.action(
                   selectedNeumatico && selectedNeumatico.IdNeumatico
                     ? selectedNeumatico.IdNeumatico
-                    : 0
+                    : 0,
                 )}
                 methodAlta={endpointsAPI.neumaticos.altaLogica.method}
                 endpointBaja={endpointsAPI.neumaticos.bajaLogica.action(
                   selectedNeumatico && selectedNeumatico.IdNeumatico
                     ? selectedNeumatico.IdNeumatico
-                    : 0
+                    : 0,
                 )}
                 methodBaja={endpointsAPI.neumaticos.bajaLogica.method}
                 estado={selectedNeumatico!.Estado!}
@@ -168,6 +206,20 @@ export const ListarNeumaticos = () => {
                     }),
                   }));
                 }}></AltaBajaLogica>
+              {getUserFromToken()?.role == 1 && (
+                <button
+                  className="btn btn-dark"
+                  onClick={() =>
+                    confirmarAccionPeligrosa(
+                      handleDelete,
+                      setShowModal,
+                      "Si elimina el neumático, se desasociara de los vehiculos relacionados. ¿Confirma que desea eliminar el neumático?",
+                      'Esta acción es irreversible. Escribe la palabra "Confirmar" para continuar:',
+                    )
+                  }>
+                  {"Eliminar Neumático"}
+                </button>
+              )}
             </>
           )}
         </ModalTable>
@@ -187,6 +239,7 @@ export const ListarNeumaticos = () => {
           totalCountPages={
             metadataPage.totalPaginasCalculadas
           }></PaginatorForTable>
+        <NavButtonPosition />
       </TableContainer>
     </>
   );

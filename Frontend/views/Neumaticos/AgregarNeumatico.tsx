@@ -218,7 +218,7 @@ export const AgregarNeumatico = () => {
 
                 <ChecklistInput
                   name="Estandar"
-                  label="Estandar"
+                  label={getNeumatico.Estandar ? "Estandar" : "Recapado"}
                   value={getNeumatico.Estandar!}
                   onChange={(value) =>
                     setNeumatico({ ...getNeumatico, Estandar: value })
@@ -237,7 +237,11 @@ export const AgregarNeumatico = () => {
                 />
                 <ChecklistInput
                   name="DesgasteIrregular"
-                  label="Desgaste Irregular"
+                  label={
+                    getNeumatico.DesgasteIrregular
+                      ? "Con Desgaste Irregular"
+                      : "Sin Desgaste Irregular"
+                  }
                   value={getNeumatico.DesgasteIrregular!}
                   onChange={(value) =>
                     setNeumatico({ ...getNeumatico, DesgasteIrregular: value })
