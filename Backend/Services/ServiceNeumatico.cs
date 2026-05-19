@@ -100,10 +100,13 @@ namespace Backend.Services
                 throw new KeyNotFoundException(
                     "No se puede asignar el neumatico: no existe el neumatico con id " + idNeumatico
                 );
+
             if (vehiculo == null)
                 throw new KeyNotFoundException(
                     "No se puede asignar el neumatico: no existe el vehiculo con id " + idVehiculo
                 );
+            //if (!vehiculo.Estado)
+            //    throw new InvalidOperationException("El vehiculo esta dado de baja");
             neumatico.IdVehiculo = vehiculo.IdVehiculo;
             _context.Neumaticos.Update(neumatico);
             return await _context.SaveChangesAsync() > 0;

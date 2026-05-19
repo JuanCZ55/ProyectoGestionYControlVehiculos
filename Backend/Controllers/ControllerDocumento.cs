@@ -65,16 +65,23 @@ public class ControllerDocumento : ControllerBase
         if (documento.IdVehiculo != null)
         {
             tipoEntidad = "Vehiculos";
-            codigoEntidad =
-                await _serviceDocumento.GetPatenteByVehiculoId(documento.IdVehiculo)
+            Vehiculo? vehiculoFinded = await _serviceDocumento.GetPatenteByVehiculoId(documento.IdVehiculo);
+            if (vehiculoFinded == null)
+                return BadRequest("El vehiculo no se encuentra registrado");
+            if (!vehiculoFinded.Estado)
+                return BadRequest("El vehiculo esta dado de baja");
+            codigoEntidad = vehiculoFinded!.Patente              
                 ?? "Desconocido";
         }
         else if (documento.IdMatafuego != null)
         {
             tipoEntidad = "Matafuegos";
-            codigoEntidad =
-                await _serviceDocumento.GetNumeroSerieByMatafuegoId(documento.IdMatafuego)
-                ?? "Desconocido";
+            Matafuego matafuego = await _serviceDocumento.GetNumeroSerieByMatafuegoId(documento.IdMatafuego);
+            if (matafuego == null)
+                return BadRequest("El matafuego no existe");
+            if (!matafuego.Estado)
+                return BadRequest("El matafuego esta dado de baja");
+            codigoEntidad =  matafuego!.NroSerie.ToString() ?? "Desconocido";
         }
         else
         {

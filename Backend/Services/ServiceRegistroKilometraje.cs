@@ -76,6 +76,8 @@ namespace Backend.Services
                 throw new KeyNotFoundException(
                     "Vehiculo con id " + registroKilometraje.IdVehiculo + " no encontrado"
                 );
+            if (await _serviceVehiculo.GetByIdAsync(registroKilometraje.IdVehiculo) is (Vehiculo veh) && !veh.Estado)
+                throw new InvalidOperationException("El vehiculo esta dado de baja");
             RegistroKilometraje? ultimoRegistroDeKilometraje =
                 await GetLatestRegistroKilometrajeByVehiculoIdAsync(registroKilometraje.IdVehiculo);
             if (

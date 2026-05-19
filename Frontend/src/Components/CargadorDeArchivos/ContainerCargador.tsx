@@ -58,12 +58,12 @@ export default function ContainerCargador({
           Enrouters.documentos.bajaLogica.action(idDocumentoViejo),
           {
             method: Enrouters.documentos.bajaLogica.method,
-          }
+          },
         );
         if (!responseFromApiLogicalDelete.ok) {
           const data = await responseFromApiLogicalDelete.json();
           throw new Error(
-            data?.message || "Error al eliminar el documento viejo"
+            data?.message || "Error al eliminar el documento viejo",
           );
         }
       }
@@ -72,8 +72,10 @@ export default function ContainerCargador({
         body: formData,
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.message || "Error al cargar el documento");
+        // const data = await res.json();
+        const data = await res.text();
+        console.log("Error data:", data);
+        throw new Error(data || "Error al cargar el documento");
       }
       setLoading(false);
       if (onSuccess) onSuccess();

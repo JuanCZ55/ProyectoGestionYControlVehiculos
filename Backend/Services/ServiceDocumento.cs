@@ -160,20 +160,20 @@ namespace Backend.Services
         }
 
         //ESTOS METODOS SON PARA LA CREACION DE LAS RUTAS DE ALMACENAMIENTO Y NOMBRES DE ARCHIVOS
-        public async Task<string?> GetPatenteByVehiculoId(int? idVehiculo)
+        public async Task<Vehiculo?> GetPatenteByVehiculoId(int? idVehiculo)
         {
             if (idVehiculo == null)
                 return null;
             var vehiculo = await _context.Vehiculos.FindAsync(idVehiculo);
-            return vehiculo?.Patente;
+            return vehiculo;
         }
 
-        public async Task<string?> GetNumeroSerieByMatafuegoId(int? idMatafuego)
+        public async Task<Matafuego?> GetNumeroSerieByMatafuegoId(int? idMatafuego)
         {
             if (idMatafuego == null)
                 return null;
             var matafuego = await _context.Matafuegos.FindAsync(idMatafuego);
-            return matafuego?.IdMatafuego.ToString();
+            return matafuego;
         }
 
         // ENDPOINT PARA BUSCAR EL ARCHIVO DE UN DOCUMENTO Y ABRIRLO EN EL NAVEGADOR

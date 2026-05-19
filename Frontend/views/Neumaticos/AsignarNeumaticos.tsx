@@ -49,7 +49,7 @@ export const AsignarNeumaticos = () => {
       tamanoPaginas: 10,
     });
   const [reload, setReload] = useState(1);
-  const [quantityNeumaticosInTable] = useState(6);
+  const [quantityNeumaticosInTable] = useState(4);
   useEffect(() => {
     if (vehiculo == null) return;
     try {
@@ -209,7 +209,10 @@ export const AsignarNeumaticos = () => {
                   ),
                   { method: endpointsAPI.neumaticos.borrarAsignacion.method },
                 );
-                if (!ok.ok) throw new Error();
+                if (!ok.ok) {
+                  const error = await ok.text();
+                  throw new Error(error);
+                }
                 Swal.fire({
                   title: "Desasignado",
                   icon: "success",

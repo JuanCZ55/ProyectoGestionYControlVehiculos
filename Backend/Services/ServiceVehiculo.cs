@@ -242,14 +242,17 @@ namespace Backend.Services
                 throw new KeyNotFoundException(
                     "Matafuego con id " + idMatafuego + " no encontrado"
                 );
+            if (!matafuego.Estado)
+                throw new InvalidOperationException("El matafuego seleccionado esta dado de baja");
             if (await serviceMatafuego.MatafuegoAsignadoAVehiculo(idMatafuego) is true)
                 throw new InvalidOperationException(
-                    "El matafuego con id " + idMatafuego + " ya se encuentra asignado a un vehiculo"
+                    "El matafuego  ya se encuentra asignado a un vehiculo"
                 );
             Vehiculo? vehiculo = await _context.Vehiculos.FindAsync(idVehiculo);
             if (vehiculo == null)
                 throw new KeyNotFoundException("Vehiculo con id " + idVehiculo + " no encontrado");
-
+            if (!vehiculo.Estado)
+                throw new InvalidOperationException("El vehiculo esta dado de baja");
             vehiculo.IdMatafuego = idMatafuego;
             _context.Vehiculos.Update(vehiculo);
             return await _context.SaveChangesAsync() > 0;

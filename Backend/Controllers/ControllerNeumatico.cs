@@ -126,6 +126,10 @@ public class ControllerNeumatico : ControllerBase
         {
             return NotFound(new { message = ex.Message });
         }
+        catch(InvalidOperationException b)
+        {
+            return BadRequest(b.ToString());
+        }
     }
 
     [HttpPut("borrar/asignacion/{idNeumatico}")]
