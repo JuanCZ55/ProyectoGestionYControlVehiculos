@@ -9,11 +9,13 @@ namespace Backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IMapper mapper;
+        private readonly ServiceRegistroKilometraje _serviceRegistroKilometraje;
 
-        public ServiceService(AppDbContext context, IMapper mapper)
+        public ServiceService(AppDbContext context, IMapper mapper, ServiceRegistroKilometraje serviceRegistroKilometraje)
         {
             _context = context;
             this.mapper = mapper;
+            _serviceRegistroKilometraje = serviceRegistroKilometraje;
         }
 
         // GET TODO SERVICIOS
@@ -47,6 +49,8 @@ namespace Backend.Services
                 throw new InvalidOperationException("No puede crear un servicio con todos los campos vacios");
             if (service.KmService == 0 && await this.BuscarServicioConKilometraje(service.IdVehiculo) is (Service servicioConKilometraje) && servicioConKilometraje.KmService > 0)
                 throw new InvalidOperationException("El vehiculo tiene registros con kilometraje, por lo tanto no puede ser 0");
+            if(service.KmService > 0 && await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(service.IdVehiculo) is (RegistroKilometraje ultimoRegistroDeKilometraje) && service.KmService < ultimoRegistroDeKilometraje.Kilometraje)
+                throw new InvalidOperationException("El kilometraje del servicio no puede ser menor al ultimo registro de kilometraje");
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
             return service;
