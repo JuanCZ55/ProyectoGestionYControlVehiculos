@@ -40,7 +40,7 @@ public class CreateServiceDto
 
     public bool? Bujias { get; set; }
 
-    public bool? Excepcional { get; set; }
+    public bool? Excepcional { get; set; } = false;
 
     [MaxLength(100)]
     public string? Proveedor { get; set; }

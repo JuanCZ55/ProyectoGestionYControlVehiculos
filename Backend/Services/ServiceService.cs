@@ -51,6 +51,18 @@ namespace Backend.Services
                 throw new InvalidOperationException("El vehiculo tiene registros con kilometraje, por lo tanto no puede ser 0");
             if(service.KmService > 0 && await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(service.IdVehiculo) is (RegistroKilometraje ultimoRegistroDeKilometraje) && service.KmService < ultimoRegistroDeKilometraje.Kilometraje)
                 throw new InvalidOperationException("El kilometraje del servicio no puede ser menor al ultimo registro de kilometraje");
+            if(!String.IsNullOrEmpty(service.ServicioExcepcional))
+                service.Excepcional = true;
+            if(await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(service.IdVehiculo) is (RegistroKilometraje ultimoRegistroDeKilometraje2) && service.KmService > ultimoRegistroDeKilometraje2.Kilometraje)
+            {
+                await _serviceRegistroKilometraje.AddAsync(new RegistroKilometraje
+                {
+                    IdVehiculo = service.IdVehiculo,
+                    Kilometraje = service.KmService,
+                    FechaRegistro = DateTime.Now,
+                    Estado = true
+                });
+            }
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
             return service;
