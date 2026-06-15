@@ -9,7 +9,6 @@ namespace Backend.Models
         public int IdAuditoria { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
 
-        [Required]
         public int? IdEntidad { get; set; } = idEntidad;
 
         [Required]

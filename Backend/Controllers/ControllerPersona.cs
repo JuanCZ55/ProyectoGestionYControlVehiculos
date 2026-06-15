@@ -35,6 +35,14 @@ public class ControllerPersona : ControllerBase
             numeroPagina,
             tamanoPagina
         );
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = null,
+                Entidad = NombreClases.Persona,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(personas);
     }
 
@@ -47,6 +55,14 @@ public class ControllerPersona : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Persona,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(persona);
     }
 
@@ -63,7 +79,7 @@ public class ControllerPersona : ControllerBase
                 {
                     IdEntidad = newPersona.IdPersona,
                     Entidad = NombreClases.Persona,
-                    Accion = nameof(AddPersona),
+                    Accion = AccionAuditoria.Create,
                 }
             );
             return CreatedAtAction(
@@ -97,7 +113,7 @@ public class ControllerPersona : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Persona,
-                    Accion = nameof(UpdatePersona),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -126,7 +142,7 @@ public class ControllerPersona : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Persona,
-                Accion = nameof(DeletePersona),
+                Accion = AccionAuditoria.Delete,
             }
         );
         return NoContent();
@@ -146,7 +162,7 @@ public class ControllerPersona : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Persona,
-                Accion = nameof(SoftDeletePersona),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -166,7 +182,7 @@ public class ControllerPersona : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Persona,
-                Accion = nameof(RestorePersona),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();

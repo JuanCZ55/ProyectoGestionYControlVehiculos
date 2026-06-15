@@ -73,7 +73,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = newUsuario.IdUsuario,
                     Entidad = NombreClases.Usuario,
-                    Accion = AccionAuditoria.Insert,
+                    Accion = AccionAuditoria.Create,
                 }
             );
             return CreatedAtAction(
@@ -108,7 +108,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(UpdateUsuario),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -138,7 +138,7 @@ public class ControllerUsuario : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Usuario,
-                Accion = nameof(DeleteUsuario),
+                Accion = AccionAuditoria.Delete,
             }
         );
         return NoContent();
@@ -159,7 +159,7 @@ public class ControllerUsuario : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Usuario,
-                Accion = nameof(SoftDeleteUsuario),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -180,7 +180,7 @@ public class ControllerUsuario : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Usuario,
-                Accion = nameof(RestoreUsuario),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();
@@ -214,7 +214,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(UpdateRolUsuario),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return Ok(rol);
@@ -241,7 +241,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(ResetPassword),
+                    Accion = AccionAuditoria.ResetPassword,
                 }
             );
             return Ok(new { message = "Contraseña reseteada: Reset123456!" });
@@ -275,7 +275,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(updatePassword),
+                    Accion = AccionAuditoria.ChangePassword,
                 }
             );
             return Ok(new { message = "Contraseña reseteada" });
@@ -302,7 +302,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(updateEmail),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return Ok("Email actualizado");
@@ -336,7 +336,7 @@ public class ControllerUsuario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(updateAvatar),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -366,6 +366,12 @@ public class ControllerUsuario : ControllerBase
                 ".jpeg" => "image/jpeg",
                 _ => "application/octet-stream", // Tipo por defecto
             };
+            await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+            {
+                Entidad = NombreClases.Usuario,
+                Accion = AccionAuditoria.Select,
+                IdEntidad = null
+            });
             return PhysicalFile(rutaAvatar, tipoMime);
         }
         catch (KeyNotFoundException ex)

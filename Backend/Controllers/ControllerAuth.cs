@@ -32,7 +32,7 @@ public class ControllerAuth : ControllerBase
                 {
                     IdEntidad = usuario.IdUsuario,
                     Entidad = NombreClases.Usuario,
-                    Accion = nameof(Register),
+                    Accion = AccionAuditoria.Register,
                 }
             );
             return Ok(new { message = "Registro exitoso" });

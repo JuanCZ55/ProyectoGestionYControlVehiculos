@@ -36,6 +36,14 @@ public class ControllerMatafuego : ControllerBase
             numeroPagina,
             tamanoPagina
         );
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = null,
+                Entidad = NombreClases.Matafuego,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(matafuegos);
     }
 
@@ -48,6 +56,14 @@ public class ControllerMatafuego : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Matafuego,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(matafuego);
     }
 
@@ -62,7 +78,7 @@ public class ControllerMatafuego : ControllerBase
             {
                 IdEntidad = newMatafuego.IdMatafuego,
                 Entidad = NombreClases.Matafuego,
-                Accion = nameof(AddMatafuego),
+                Accion = AccionAuditoria.Create,
             }
         );
         return CreatedAtAction(
@@ -91,7 +107,7 @@ public class ControllerMatafuego : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Matafuego,
-                    Accion = nameof(UpdateMatafuego),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -120,7 +136,7 @@ public class ControllerMatafuego : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Matafuego,
-                    Accion = nameof(DeleteMatafuego),
+                    Accion = AccionAuditoria.Delete,
                 }
             );
             return NoContent();
@@ -146,7 +162,7 @@ public class ControllerMatafuego : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Matafuego,
-                Accion = nameof(SoftDeleteMatafuego),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -166,7 +182,7 @@ public class ControllerMatafuego : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Matafuego,
-                Accion = nameof(RestoreMatafuego),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();
@@ -181,6 +197,7 @@ public class ControllerMatafuego : ControllerBase
         {
             return NotFound();
         }
+
         return Ok(matafuegos);
     }
     // ACA HAY Q VER TAMBIEN EL TEMA DE LA CARGA DE DOCUMENTOS RELACIONADOS

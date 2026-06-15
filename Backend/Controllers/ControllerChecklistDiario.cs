@@ -36,6 +36,13 @@ public class ControllerChecklistDiario : ControllerBase
             numeroPagina,
             tamanoPagina
         );
+        await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+        {
+            IdEntidad = null,
+            Entidad = NombreClases.ChecklistDiario,
+            Accion = AccionAuditoria.Select
+        });
+
         return Ok(checklists);
     }
 
@@ -48,6 +55,12 @@ public class ControllerChecklistDiario : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+        {
+            IdEntidad = null,
+            Entidad = NombreClases.ChecklistDiario,
+            Accion = AccionAuditoria.Select
+        });
         return Ok(checklist);
     }
 
@@ -64,7 +77,7 @@ public class ControllerChecklistDiario : ControllerBase
             {
                 IdEntidad = newChecklist.IdChecklistDiario,
                 Entidad = NombreClases.ChecklistDiario,
-                Accion = nameof(AddChecklistDiario),
+                Accion = AccionAuditoria.Create,
             }
         );
         return CreatedAtAction(
@@ -93,7 +106,7 @@ public class ControllerChecklistDiario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.ChecklistDiario,
-                    Accion = nameof(UpdateChecklistDiario),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -119,7 +132,7 @@ public class ControllerChecklistDiario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.ChecklistDiario,
-                    Accion = nameof(DeleteChecklistDiario),
+                    Accion = AccionAuditoria.Delete,
                 }
             );
             return NoContent();
@@ -145,7 +158,7 @@ public class ControllerChecklistDiario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.ChecklistDiario,
-                    Accion = nameof(SoftDeleteChecklistDiario),
+                    Accion = AccionAuditoria.SoftDelete,
                 }
             );
             return NoContent();
@@ -171,7 +184,7 @@ public class ControllerChecklistDiario : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.ChecklistDiario,
-                    Accion = nameof(RestoreChecklistDiario),
+                    Accion = AccionAuditoria.SoftRestore,
                 }
             );
             return NoContent();
@@ -199,6 +212,12 @@ public class ControllerChecklistDiario : ControllerBase
         {
             return NotFound("No se encontraron checklists para el vehiculo seleccionado.");
         }
+        await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+        {
+            Accion = AccionAuditoria.Select,
+            IdEntidad = null,
+            Entidad = NombreClases.ChecklistDiario
+        });
         return Ok(checklistsVehiculo);
     }
 }

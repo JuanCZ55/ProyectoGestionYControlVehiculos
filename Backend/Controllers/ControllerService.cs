@@ -47,6 +47,11 @@ public class ControllerService : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync( new CreateAuditoriaDto{
+            Accion = AccionAuditoria.Select,
+            Entidad = NombreClases.Service,
+            IdEntidad = null
+        });
         return Ok(service);
     }
 
@@ -63,7 +68,7 @@ public class ControllerService : ControllerBase
                 {
                     IdEntidad = newService.IdService,
                     Entidad = NombreClases.Service,
-                    Accion = nameof(CreateService),
+                    Accion = AccionAuditoria.Create,
                 }
             );
             return CreatedAtAction(
@@ -98,7 +103,7 @@ public class ControllerService : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Service,
-                    Accion = nameof(UpdateService),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -123,7 +128,7 @@ public class ControllerService : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Service,
-                Accion = nameof(DeleteService),
+                Accion = AccionAuditoria.Delete,
             }
         );
         return NoContent();
@@ -143,7 +148,7 @@ public class ControllerService : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Service,
-                Accion = nameof(SoftDeleteService),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -163,7 +168,7 @@ public class ControllerService : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Service,
-                Accion = nameof(RestoreService),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();
@@ -187,6 +192,12 @@ public class ControllerService : ControllerBase
         {
             return NotFound("No se encontraron servicios para el vehiculo seleccionado.");
         }
+        await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+        {
+            Accion = AccionAuditoria.Select,
+            Entidad = NombreClases.Service,
+            IdEntidad = null
+        });
         return Ok(servicesVehiculo);
     }
 
@@ -203,7 +214,7 @@ public class ControllerService : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Service,
-                Accion = nameof(MarcarServicioResuelto),
+                Accion = AccionAuditoria.Update,
             }
         );
         return NoContent();
@@ -222,7 +233,7 @@ public class ControllerService : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Service,
-                Accion = nameof(MarcarServicioComoNoResuelto),
+                Accion = AccionAuditoria.Update,
             }
         );
         return NoContent();

@@ -35,6 +35,14 @@ public class ControllerDocumento : ControllerBase
             numeroPagina,
             tamanoPagina
         );
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = null,
+                Entidad = NombreClases.Documento,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(documentos);
     }
 
@@ -47,6 +55,14 @@ public class ControllerDocumento : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Documento,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(documento);
     }
 
@@ -102,7 +118,7 @@ public class ControllerDocumento : ControllerBase
             {
                 IdEntidad = newDocumento.IdDocumento,
                 Entidad = NombreClases.Documento,
-                Accion = nameof(AddDocumento),
+                Accion = AccionAuditoria.Create,
             }
         );
         return CreatedAtAction(
@@ -132,7 +148,7 @@ public class ControllerDocumento : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Documento,
-                    Accion = nameof(UpdateDocumento),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -155,7 +171,7 @@ public class ControllerDocumento : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Documento,
-                    Accion = nameof(DeleteDocumento),
+                    Accion = AccionAuditoria.Delete,
                 }
             );
             return NoContent();
@@ -180,7 +196,7 @@ public class ControllerDocumento : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Documento,
-                Accion = nameof(SoftDeleteDocumento),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -200,7 +216,7 @@ public class ControllerDocumento : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Documento,
-                Accion = nameof(RestoreDocumento),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();
@@ -211,6 +227,14 @@ public class ControllerDocumento : ControllerBase
     public async Task<IActionResult> GetDocumentosByVehiculoId(int IdVehiculo)
     {
         var documentos = await _serviceDocumento.GetByVehiculoIdAsync(IdVehiculo);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = IdVehiculo,
+                Entidad = NombreClases.Documento,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(documentos);
     }
 
@@ -218,6 +242,14 @@ public class ControllerDocumento : ControllerBase
     public async Task<IActionResult> GetDocumentosByMatafuegoId(int idMatafuego)
     {
         var documentos = await _serviceDocumento.GetByMatafuegoIdAsync(idMatafuego);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = idMatafuego,
+                Entidad = NombreClases.Documento,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(documentos);
     }
 
@@ -251,7 +283,14 @@ public class ControllerDocumento : ControllerBase
 
         // Usar el nombre real del archivo, si no, "archivo"
         var nombreArchivo = Path.GetFileName(documento.UrlArchivos) ?? "archivo";
-
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Documento,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return File(archivo, mimeType, nombreArchivo);
     }
     // HAY Q VER COMO APLICAR LO DE LOS PATHS Y LO DE ARCHIVOS ACA

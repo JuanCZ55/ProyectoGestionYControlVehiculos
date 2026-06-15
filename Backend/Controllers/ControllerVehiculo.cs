@@ -37,6 +37,14 @@ public class ControllerVehiculo : ControllerBase
             tamanoPagina,
             estado
         );
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = null,
+                Entidad = NombreClases.Vehiculo,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(vehiculos);
     }
 
@@ -49,6 +57,14 @@ public class ControllerVehiculo : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Vehiculo,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(vehiculo);
     }
 
@@ -65,7 +81,7 @@ public class ControllerVehiculo : ControllerBase
                 {
                     IdEntidad = newVehiculo.IdVehiculo,
                     Entidad = NombreClases.Vehiculo,
-                    Accion = nameof(CreateVehiculo),
+                    Accion = AccionAuditoria.Create,
                 }
             );
             return CreatedAtAction(
@@ -102,7 +118,7 @@ public class ControllerVehiculo : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Vehiculo,
-                    Accion = nameof(UpdateVehiculo),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -135,7 +151,7 @@ public class ControllerVehiculo : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Vehiculo,
-                    Accion = nameof(DeleteVehiculo),
+                    Accion = AccionAuditoria.Delete,
                 }
             );
             return NoContent();
@@ -161,7 +177,7 @@ public class ControllerVehiculo : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Vehiculo,
-                Accion = nameof(SoftDeleteVehiculo),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -181,7 +197,7 @@ public class ControllerVehiculo : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Vehiculo,
-                Accion = nameof(RestoreVehiculo),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();
@@ -196,6 +212,14 @@ public class ControllerVehiculo : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = vehiculo.IdVehiculo,
+                Entidad = NombreClases.Vehiculo,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(vehiculo);
     }
 
@@ -222,7 +246,7 @@ public class ControllerVehiculo : ControllerBase
                 {
                     IdEntidad = idVehiculo,
                     Entidad = NombreClases.Vehiculo,
-                    Accion = nameof(AsignarMatafuegoAVehiculo),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();

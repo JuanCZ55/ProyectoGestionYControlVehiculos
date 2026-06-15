@@ -77,7 +77,7 @@ public class ServiceAuth
             {
                 IdEntidad = usuario.IdUsuario,
                 Entidad = NombreClases.Usuario,
-                Accion = nameof(Login),
+                Accion = AccionAuditoria.Login,
                 IdUsuario = usuario.IdUsuario,
             }
         );

@@ -37,7 +37,29 @@ namespace Backend.Services
                 tamanoPagina
             );
         }
+        //public async Task<PagedResponse<ChecklistDiario>> GetAllAsyncByFilterStateAndUser(
+        //    int nroPagina,
+        //    int tamanoPagina,
+        //    bool estado,
+        //    bool userRegisters
+        //)
+        //{
+        //    IQueryable<ChecklistDiario> query = _context.ChecklistsDiarios;
+        //    int totalRegistrosChecklistDiario = await query.CountAsync();
+        //    List<ChecklistDiario>? checklistDiarios = await query
+        //        .AsNoTracking()
+        //        .OrderByDescending(c => c.Fecha)
+        //        .Skip((nroPagina - 1) * tamanoPagina)
+        //        .Take(tamanoPagina)
+        //        .ToListAsync();
 
+        //    return new PagedResponse<ChecklistDiario>(
+        //        checklistDiarios,
+        //        totalRegistrosChecklistDiario,
+        //        nroPagina,
+        //        tamanoPagina
+        //    );
+        //}
         // CHECKLISTDIARIO POR ID
         public async Task<ChecklistDiario?> GetByIdAsync(int id)
         {

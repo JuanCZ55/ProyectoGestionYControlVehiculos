@@ -35,6 +35,16 @@ public class ControllerNeumatico : ControllerBase
             numeroPagina,
             tamanoPagina
         );
+        
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = null,
+                Entidad = NombreClases.Neumatico,
+                Accion = AccionAuditoria.Select,
+            }
+        );
+
         return Ok(neumaticos);
     }
 
@@ -47,6 +57,14 @@ public class ControllerNeumatico : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Neumatico,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(neumatico);
     }
 
@@ -58,6 +76,14 @@ public class ControllerNeumatico : ControllerBase
     {
         Console.WriteLine("============\nnumeroPagina: " + numeroPagina);
         var neumaticos = await _serviceNeumatico.GetAllNotAssignedAsync(numeroPagina, tamanoPagina);
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = null,
+                Entidad = NombreClases.Neumatico,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(neumaticos);
     }
 
@@ -73,6 +99,14 @@ public class ControllerNeumatico : ControllerBase
             idVehiculo,
             numeroPagina,
             tamanoPagina
+        );
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = idVehiculo,
+                Entidad = NombreClases.Neumatico,
+                Accion = AccionAuditoria.Select,
+            }
         );
         return Ok(neumaticos);
     }
@@ -92,7 +126,7 @@ public class ControllerNeumatico : ControllerBase
             {
                 IdEntidad = newNeumatico.IdNeumatico,
                 Entidad = NombreClases.Neumatico,
-                Accion = nameof(AddNeumatico),
+                Accion = AccionAuditoria.Create,
             }
         );
         return CreatedAtAction(
@@ -117,7 +151,7 @@ public class ControllerNeumatico : ControllerBase
                 {
                     IdEntidad = idNeumatico,
                     Entidad = NombreClases.Neumatico,
-                    Accion = nameof(AsignarNeumatico),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -147,7 +181,7 @@ public class ControllerNeumatico : ControllerBase
                 {
                     IdEntidad = idNeumatico,
                     Entidad = NombreClases.Neumatico,
-                    Accion = nameof(BorrarAsignacion),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -180,7 +214,7 @@ public class ControllerNeumatico : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Neumatico,
-                    Accion = nameof(UpdateNeumatico),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -206,7 +240,7 @@ public class ControllerNeumatico : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Neumatico,
-                Accion = nameof(DeleteNeumatico),
+                Accion = AccionAuditoria.Delete,
             }
         );
         return NoContent();
@@ -226,7 +260,7 @@ public class ControllerNeumatico : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Neumatico,
-                Accion = nameof(SoftDeleteNeumatico),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -246,7 +280,7 @@ public class ControllerNeumatico : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.Neumatico,
-                Accion = nameof(RestoreNeumatico),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();

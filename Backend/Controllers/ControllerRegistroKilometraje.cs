@@ -48,6 +48,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         {
             return NotFound();
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.RegistroKilometraje,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(registro);
     }
 
@@ -66,6 +74,14 @@ public class ControllerRegistroKilometraje : ControllerBase
         {
             return NotFound("El vehiculo no tiene registros de kilometraje registrados.");
         }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = idVehiculo,
+                Entidad = NombreClases.RegistroKilometraje,
+                Accion = AccionAuditoria.Select,
+            }
+        );
         return Ok(registroFinded);
     }
 
@@ -85,7 +101,7 @@ public class ControllerRegistroKilometraje : ControllerBase
                 {
                     IdEntidad = newRegistro.IdRegistroKilometraje,
                     Entidad = NombreClases.RegistroKilometraje,
-                    Accion = nameof(AddRegistroKilometraje),
+                    Accion = AccionAuditoria.Create,
                 }
             );
             return CreatedAtAction(
@@ -136,7 +152,7 @@ public class ControllerRegistroKilometraje : ControllerBase
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.RegistroKilometraje,
-                    Accion = nameof(UpdateRegistroKilometraje),
+                    Accion = AccionAuditoria.Update,
                 }
             );
             return NoContent();
@@ -165,7 +181,7 @@ public class ControllerRegistroKilometraje : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.RegistroKilometraje,
-                Accion = nameof(DeleteRegistroKilometraje),
+                Accion = AccionAuditoria.Delete,
             }
         );
         return NoContent();
@@ -185,7 +201,7 @@ public class ControllerRegistroKilometraje : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.RegistroKilometraje,
-                Accion = nameof(SoftDeleteRegistroKilometraje),
+                Accion = AccionAuditoria.SoftDelete,
             }
         );
         return NoContent();
@@ -205,7 +221,7 @@ public class ControllerRegistroKilometraje : ControllerBase
             {
                 IdEntidad = id,
                 Entidad = NombreClases.RegistroKilometraje,
-                Accion = nameof(RestoreRegistroKilometraje),
+                Accion = AccionAuditoria.SoftRestore,
             }
         );
         return NoContent();
@@ -244,6 +260,7 @@ public class ControllerRegistroKilometraje : ControllerBase
             nroPagina = registrosKilometraje.PaginaActual,
             totalPaginasCalculadas = registrosKilometraje.TotalPaginasCalculadas,
         });
+       
         return Ok(result);
     }
 
