@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [Route("api/registro-kilometraje")]
 [ApiController]
@@ -58,7 +59,29 @@ public class ControllerRegistroKilometraje : ControllerBase
         );
         return Ok(registro);
     }
+    [HttpGet]
+    public async Task<IActionResult> GetListadoDeRegistros([FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
+    {
+        try
+        {
+            // Obtenemos el ID del usuario directamente desde el Token JWT
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+            {
+                return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
+            }
+
+            // Llamamos al servicio pasando el flag y el ID seguro
+            List<RegistroKilometraje>? resultado = await _serviceRegistroKilometraje.ObtenerRegistrosAsync(misRegistros,estado,idUsuarioActual);
+
+            return Ok(resultado);
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener los registros", error = ex.Message });
+        }
+    }
     [HttpGet("latest/{idVehiculo}")]
     public async Task<IActionResult> GetLatestRegistroKilometrajeByVehiculoId(int idVehiculo)
     {
