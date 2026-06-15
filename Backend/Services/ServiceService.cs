@@ -17,7 +17,28 @@ namespace Backend.Services
             this.mapper = mapper;
             _serviceRegistroKilometraje = serviceRegistroKilometraje;
         }
+        public async Task<List<Service>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual)
+        {
+            IQueryable<Service> query = _context.Services
+                .Where(s => s.Estado == estado);
 
+            if (misRegistros)
+            {
+                var idsCreadosPorUsuario = await _context.Auditorias
+                    .Where(a => a.IdUsuario == idUsuarioActual
+                             && a.Entidad == NombreClases.Service   
+                             && a.Accion == AccionAuditoria.Create)
+                    .Select(a => a.IdEntidad)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(r => idsCreadosPorUsuario.Contains(r.IdService));
+            }
+
+            var registros = await query.ToListAsync();
+
+            return registros;
+        }
         // GET TODO SERVICIOS
         public async Task<PagedResponse<Service>> GetAllAsync(int nroPagina, int tamanoPagina)
         {

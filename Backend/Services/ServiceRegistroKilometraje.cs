@@ -44,30 +44,24 @@ namespace Backend.Services
         }
         public async Task<List<RegistroKilometraje>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual)
         {
-            // 1. Iniciamos la consulta base (solo registros activos si manejas baja lógica)
             IQueryable<RegistroKilometraje> query = _context.RegistrosKilometraje
                 .Where(r => r.Estado == estado);
 
-            // 2. Si el parámetro 'misRegistros' es true, filtramos usando la Auditoría
             if (misRegistros)
             {
-                // Usamos tus constantes estandarizadas NombreClases y AccionAuditoria
                 var idsCreadosPorUsuario = await _context.Auditorias
                     .Where(a => a.IdUsuario == idUsuarioActual
                              && a.Entidad == NombreClases.RegistroKilometraje
-                             && a.Accion == AccionAuditoria.Create) // Reemplaza "Crear" por la constante exacta que uses
+                             && a.Accion == AccionAuditoria.Create) 
                     .Select(a => a.IdEntidad)
                     .Distinct()
                     .ToListAsync();
 
-                // Aplicamos el filtro a la consulta principal
                 query = query.Where(r => idsCreadosPorUsuario.Contains(r.IdRegistroKilometraje));
             }
 
-            // 3. Ejecutamos la consulta a la base de datos
             var registros = await query.ToListAsync();
 
-            // 4. Mapeamos a DTO y retornamos
             return registros;
         }
         // REGISTRO KILOMETRAJE POR ID

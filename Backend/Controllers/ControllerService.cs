@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [Route("api/mantenimiento")]
 [ApiController]
@@ -37,7 +38,27 @@ public class ControllerService : ControllerBase
         );
         return Ok(services);
     }
+    [HttpGet("/GetListadoRegistrosService")]
+    public async Task<IActionResult> GetListadoDeRegistros([FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
+    {
+        try
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+            {
+                return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
+            }
+
+            List<Service>? resultado = await _serviceService.ObtenerRegistrosAsync(misRegistros, estado, idUsuarioActual);
+
+            return Ok(resultado);
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al obtener los registros", error = ex.Message });
+        }
+    }
     // GET SERVICIO POR ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetServiceById(int id)

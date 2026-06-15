@@ -64,7 +64,6 @@ public class ControllerRegistroKilometraje : ControllerBase
     {
         try
         {
-            // Obtenemos el ID del usuario directamente desde el Token JWT
             var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
@@ -72,7 +71,6 @@ public class ControllerRegistroKilometraje : ControllerBase
                 return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
             }
 
-            // Llamamos al servicio pasando el flag y el ID seguro
             List<RegistroKilometraje>? resultado = await _serviceRegistroKilometraje.ObtenerRegistrosAsync(misRegistros,estado,idUsuarioActual);
 
             return Ok(resultado);

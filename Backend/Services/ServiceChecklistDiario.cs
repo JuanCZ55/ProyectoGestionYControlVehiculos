@@ -14,7 +14,28 @@ namespace Backend.Services
             _context = context;
             this.mapper = mapper;
         }
+        public async Task<List<ChecklistDiario>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual)
+        {
+            IQueryable<ChecklistDiario> query = _context.ChecklistsDiarios
+                .Where(c => c.Estado == estado);
 
+            if (misRegistros)
+            {
+                var idsCreadosPorUsuario = await _context.Auditorias
+                    .Where(a => a.IdUsuario == idUsuarioActual
+                             && a.Entidad == NombreClases.ChecklistDiario
+                             && a.Accion == AccionAuditoria.Create)
+                    .Select(a => a.IdEntidad)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(r => idsCreadosPorUsuario.Contains(r.IdChecklistDiario));
+            }
+
+            var registros = await query.ToListAsync();
+
+            return registros;
+        }
         // GET TODO CHECKLISTDIARIOS
         public async Task<PagedResponse<ChecklistDiario>> GetAllAsync(
             int nroPagina,
