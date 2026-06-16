@@ -47,7 +47,19 @@ public class ControllerVehiculo : ControllerBase
         );
         return Ok(vehiculos);
     }
-
+    // GET TODOS LOS VEHICULOS SIN PAGINADO
+    [HttpGet("notPaginated")]
+    public async Task<IActionResult> GetAllVehiculosNotPaginated()
+    {
+        List<VehiculoDto>? vehiculosFinded = await _serviceVehiculo.getAllNotPaginated();
+        await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+        {
+            IdEntidad = null,
+            Entidad = NombreClases.Vehiculo,
+            Accion = AccionAuditoria.Select
+        });
+        return Ok(vehiculosFinded);
+    }
     // GET VEHICULO POR ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetVehiculoById(int id)

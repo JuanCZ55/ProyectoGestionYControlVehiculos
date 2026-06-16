@@ -23,7 +23,39 @@ namespace Backend.Services
             this.serviceMatafuego = serviceMatafuego;
             this.serviceProvider = serviceProvider;
         }
-
+        public async Task<List<VehiculoDto>?> getAllNotPaginated()
+        {
+            IQueryable<Vehiculo> query = _context.Vehiculos;
+            query.Where(v => v.Estado == true);
+            List<VehiculoDto>? vehiculos = await query.Include(m => m.Matafuego).OrderBy(v => v.IdVehiculo).Select(v => new VehiculoDto
+            {
+                IdVehiculo = v.IdVehiculo,
+                Marca = v.Marca,
+                Modelo = v.Modelo,
+                Anio = v.Anio,
+                Patente = v.Patente,
+                Color = v.Color,
+                CantidadNeumaticos = v.CantidadNeumaticos,
+                CantidadAuxilios = v.CantidadAuxilios,
+                NumeroChasis = v.NumeroChasis,
+                NumeroMotor = v.NumeroMotor,
+                IdMatafuego = v.IdMatafuego,
+                Matafuego =
+                        v.Matafuego != null
+                            ? new MatafuegoDto
+                            {
+                                IdMatafuego = v.Matafuego.IdMatafuego,
+                                NroSerie = v.Matafuego.NroSerie,
+                                Proveedor = v.Matafuego.Proveedor,
+                                FechaCarga = v.Matafuego.FechaCarga,
+                                FechaVencimiento = v.Matafuego.FechaVencimiento,
+                                Estado = v.Matafuego.Estado,
+                            }
+                            : null,
+                Estado = v.Estado,
+            }).ToListAsync();
+            return vehiculos;
+        }
         // GET TODO VEHICULOS
         public async Task<PagedResponse<VehiculoDto>> GetAllAsync(
             int nroPagina,
