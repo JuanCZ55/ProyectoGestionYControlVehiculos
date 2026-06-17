@@ -28,7 +28,7 @@ namespace Backend.Models
         public Vehiculo? Vehiculo { get; set; } = null!;
 
         [NotMapped]
-        public bool? currentUser { get; set; }
+        public bool? currentUser { get; set; } = false;
 
         // Constructor vacío
         public RegistroKilometraje()

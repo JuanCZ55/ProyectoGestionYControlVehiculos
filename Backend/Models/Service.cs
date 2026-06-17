@@ -69,7 +69,7 @@ namespace Backend.Models
         public bool Estado { get; set; } = estado;
 
         [NotMapped]
-        public bool? currentUser { get; set; }
+        public bool? currentUser { get; set; } = false;
 
         public Service()
             : this(
