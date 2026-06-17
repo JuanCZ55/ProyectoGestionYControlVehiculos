@@ -57,7 +57,6 @@ namespace Backend.Models
         public string Proveedor { get; set; } = proveedor;
 
         [Required]
-        
         public int KmService { get; set; } = kmService;
 
         public string? Detalle { get; set; } = detalle;
@@ -68,6 +67,9 @@ namespace Backend.Models
         public int IdVehiculo { get; set; } = idVehiculo;
         public Vehiculo? Vehiculo { get; set; } = null!;
         public bool Estado { get; set; } = estado;
+
+        [NotMapped]
+        public bool? currentUser { get; set; }
 
         public Service()
             : this(

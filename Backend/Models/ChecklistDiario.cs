@@ -45,6 +45,9 @@ namespace Backend.Models
         [ForeignKey("Vehiculo")]
         public int IdVehiculo { get; set; } = idVehiculo;
         public Vehiculo? Vehiculo { get; set; }
+
+        [NotMapped]
+        public bool? currentUser { get; set; }
         public bool Estado { get; set; } = estado;
 
         // Constructor vacío

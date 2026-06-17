@@ -27,6 +27,9 @@ namespace Backend.Models
         // Navigation property
         public Vehiculo? Vehiculo { get; set; } = null!;
 
+        [NotMapped]
+        public bool? currentUser { get; set; }
+
         // Constructor vacío
         public RegistroKilometraje()
             : this(default, default, default, true) { }
