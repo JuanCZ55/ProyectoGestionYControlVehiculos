@@ -46,8 +46,8 @@ public class ControllerChecklistDiario : ControllerBase
 
         return Ok(checklists);
     }
-    [HttpGet("/GetListadoRegistrosChecklist")]
-    public async Task<IActionResult> GetListadoDeRegistros([FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
+    [HttpGet("/checklist/{idVehiculo}")]
+    public async Task<IActionResult> GetListadoDeRegistros(int idVehiculo, [FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
     {
         try
         {
@@ -57,8 +57,7 @@ public class ControllerChecklistDiario : ControllerBase
             {
                 return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
             }
-
-            List<ChecklistDiario>? resultado = await _serviceChecklistDiario.ObtenerRegistrosAsync(misRegistros, estado, idUsuarioActual);
+            var resultado = await _serviceChecklistDiario.ObtenerRegistrosAsync(misRegistros, estado, idUsuarioActual, idVehiculo);
 
             return Ok(resultado);
         }

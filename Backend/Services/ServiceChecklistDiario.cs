@@ -14,28 +14,43 @@ namespace Backend.Services
             _context = context;
             this.mapper = mapper;
         }
-        public async Task<List<ChecklistDiario>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual)
+        public async Task<List<ChecklistDiario>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual, int idVehiculo)
         {
-            IQueryable<ChecklistDiario> query = _context.ChecklistsDiarios
-                .Where(c => c.Estado == estado);
+            var queryAud = _context.Auditorias.Where(a => a.Entidad == NombreClases.ChecklistDiario && a.Accion == AccionAuditoria.Create);
 
-            if (misRegistros)
-            {
-                var idsCreadosPorUsuario = await _context.Auditorias
-                    .Where(a => a.IdUsuario == idUsuarioActual
-                             && a.Entidad == NombreClases.ChecklistDiario
-                             && a.Accion == AccionAuditoria.Create)
-                    .Select(a => a.IdEntidad)
-                    .Distinct()
-                    .ToListAsync();
+            if (misRegistros) 
+                queryAud = queryAud.Where(a => a.IdUsuario == idUsuarioActual);
 
-                query = query.Where(r => idsCreadosPorUsuario.Contains(r.IdChecklistDiario));
-            }
+            var idAudsPermitidos = queryAud.Select(a => a.IdEntidad).Distinct();
 
-            var registros = await query.ToListAsync();
-
-            return registros;
+            return await _context.ChecklistsDiarios
+                .Take(30)
+                .OrderByDescending(c => c.Fecha)
+                .Where(c => c.Estado == estado && c.IdVehiculo == idVehiculo && idAudsPermitidos.Contains(c.IdChecklistDiario))
+                .Select(c => new ChecklistDiario
+                {
+                    IdChecklistDiario = c.IdChecklistDiario,
+                    IdVehiculo = c.IdVehiculo,
+                    Fecha = c.Fecha,
+                    FaroDelanteroIzquierdo = c.FaroDelanteroIzquierdo,
+                    FaroDelanteroDerecho = c.FaroDelanteroDerecho,
+                    FaroTraseroIzquierdo = c.FaroTraseroIzquierdo,
+                    FaroTraseroDerecho = c.FaroTraseroDerecho,
+                    LiquidoFrenos = c.LiquidoFrenos,
+                    NivelAceite = c.NivelAceite,
+                    PresionNeumaticos = c.PresionNeumaticos,
+                    NivelFrenos = c.NivelFrenos,
+                    MatafuegoVigente = c.MatafuegoVigente,
+                    NivelRefrigerante = c.NivelRefrigerante,
+                    NivelAguaParabrisas = c.NivelAguaParabrisas,
+                    Observaciones = c.Observaciones,
+                    Estado = c.Estado,
+                    currentUser = _context.Auditorias.Any(a => a.IdUsuario == idUsuarioActual && a.Entidad == NombreClases.ChecklistDiario && a.Accion == AccionAuditoria.Create && a.IdEntidad == c.IdChecklistDiario)
+                })
+                .ToListAsync();
         }
+
+
         // GET TODO CHECKLISTDIARIOS
         public async Task<PagedResponse<ChecklistDiario>> GetAllAsync(
             int nroPagina,
@@ -146,5 +161,8 @@ namespace Backend.Services
                 tamanoPagina
             );
         }
+
+
     }
+
 }
