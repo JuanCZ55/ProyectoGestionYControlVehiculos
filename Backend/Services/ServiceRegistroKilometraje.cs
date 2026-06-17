@@ -46,31 +46,31 @@ namespace Backend.Services
         public async Task<List<RegistroKilometraje>> ObtenerRegistrosAsync(
             bool misRegistros,
             bool estado,
-            int idUsuarioActual
+            int idUsuarioActual,
+            int idVehiculo
         )
         {
-            IQueryable<RegistroKilometraje> query = _context.RegistrosKilometraje.Where(r =>
-                r.Estado == estado
-            );
+            var queryAud = _context.Auditorias.Where(a => a.Entidad == NombreClases.RegistroKilometraje && a.Accion == AccionAuditoria.Create);
 
             if (misRegistros)
-            {
-                var idsCreadosPorUsuario = await _context
-                    .Auditorias.Where(a =>
-                        a.IdUsuario == idUsuarioActual
-                        && a.Entidad == NombreClases.RegistroKilometraje
-                        && a.Accion == AccionAuditoria.Create
-                    )
-                    .Select(a => a.IdEntidad)
-                    .Distinct()
-                    .ToListAsync();
+                queryAud = queryAud.Where(a => a.IdUsuario == idUsuarioActual);
 
-                query = query.Where(r => idsCreadosPorUsuario.Contains(r.IdRegistroKilometraje));
-            }
+            var idAudsPermitidos = queryAud.Select(a => a.IdEntidad).Distinct();
 
-            var registros = await query.ToListAsync();
-
-            return registros;
+            return await _context.RegistrosKilometraje
+                .Take(30)
+                .OrderByDescending(r => r.FechaRegistro)
+                .Where(c => c.Estado == estado && c.IdVehiculo == idVehiculo && idAudsPermitidos.Contains(c.IdRegistroKilometraje))
+                .Select(c => new RegistroKilometraje
+                {
+                    IdRegistroKilometraje = c.IdRegistroKilometraje,
+                    IdVehiculo = c.IdVehiculo,
+                    Kilometraje = c.Kilometraje,
+                    FechaRegistro = c.FechaRegistro,
+                    Estado = c.Estado,
+                    currentUser = _context.Auditorias.Any(a => a.IdUsuario == idUsuarioActual && a.Entidad == NombreClases.RegistroKilometraje && a.Accion == AccionAuditoria.Create && a.IdEntidad == c.IdRegistroKilometraje)
+                })
+                .ToListAsync();
         }
 
         // REGISTRO KILOMETRAJE POR ID

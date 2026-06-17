@@ -60,7 +60,7 @@ public class ControllerRegistroKilometraje : ControllerBase
         return Ok(registro);
     }
     [HttpGet]
-    public async Task<IActionResult> GetListadoDeRegistros([FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
+    public async Task<IActionResult> GetListadoDeRegistros([FromQuery] int idVehiculo, [FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
     {
         try
         {
@@ -71,7 +71,7 @@ public class ControllerRegistroKilometraje : ControllerBase
                 return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
             }
 
-            List<RegistroKilometraje>? resultado = await _serviceRegistroKilometraje.ObtenerRegistrosAsync(misRegistros,estado,idUsuarioActual);
+            List<RegistroKilometraje>? resultado = await _serviceRegistroKilometraje.ObtenerRegistrosAsync(misRegistros,estado,idUsuarioActual,idVehiculo);
 
             return Ok(resultado);
         }
