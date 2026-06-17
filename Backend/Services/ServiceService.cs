@@ -11,23 +11,33 @@ namespace Backend.Services
         private readonly IMapper mapper;
         private readonly ServiceRegistroKilometraje _serviceRegistroKilometraje;
 
-        public ServiceService(AppDbContext context, IMapper mapper, ServiceRegistroKilometraje serviceRegistroKilometraje)
+        public ServiceService(
+            AppDbContext context,
+            IMapper mapper,
+            ServiceRegistroKilometraje serviceRegistroKilometraje
+        )
         {
             _context = context;
             this.mapper = mapper;
             _serviceRegistroKilometraje = serviceRegistroKilometraje;
         }
-        public async Task<List<Service>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual)
+
+        public async Task<List<Service>> ObtenerRegistrosAsync(
+            bool misRegistros,
+            bool estado,
+            int idUsuarioActual
+        )
         {
-            IQueryable<Service> query = _context.Services
-                .Where(s => s.Estado == estado);
+            IQueryable<Service> query = _context.Services.Where(s => s.Estado == estado);
 
             if (misRegistros)
             {
-                var idsCreadosPorUsuario = await _context.Auditorias
-                    .Where(a => a.IdUsuario == idUsuarioActual
-                             && a.Entidad == NombreClases.Service   
-                             && a.Accion == AccionAuditoria.Create)
+                var idsCreadosPorUsuario = await _context
+                    .Auditorias.Where(a =>
+                        a.IdUsuario == idUsuarioActual
+                        && a.Entidad == NombreClases.Service
+                        && a.Accion == AccionAuditoria.Create
+                    )
                     .Select(a => a.IdEntidad)
                     .Distinct()
                     .ToListAsync();
@@ -39,6 +49,7 @@ namespace Backend.Services
 
             return registros;
         }
+
         // GET TODO SERVICIOS
         public async Task<PagedResponse<Service>> GetAllAsync(int nroPagina, int tamanoPagina)
         {
@@ -67,22 +78,45 @@ namespace Backend.Services
         public async Task<Service> AddAsync(Service service)
         {
             if (ValidarService.validarTodosLosItemsEnFalse(service))
-                throw new InvalidOperationException("No puede crear un servicio con todos los campos vacios");
-            if (service.KmService == 0 && await this.BuscarServicioConKilometraje(service.IdVehiculo) is (Service servicioConKilometraje) && servicioConKilometraje.KmService > 0)
-                throw new InvalidOperationException("El vehiculo tiene registros con kilometraje, por lo tanto no puede ser 0");
-            if(service.KmService > 0 && await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(service.IdVehiculo) is (RegistroKilometraje ultimoRegistroDeKilometraje) && service.KmService < ultimoRegistroDeKilometraje.Kilometraje)
-                throw new InvalidOperationException("El kilometraje del servicio no puede ser menor al ultimo registro de kilometraje");
-            if(!String.IsNullOrEmpty(service.ServicioExcepcional))
+                throw new InvalidOperationException(
+                    "No puede crear un servicio con todos los campos vacios"
+                );
+
+            RegistroKilometraje? registroKilometraje =
+                await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(
+                    service.IdVehiculo
+                );
+            if (service.KmService == 0 && registroKilometraje != null)
+                throw new InvalidOperationException(
+                    "El vehiculo tiene registros con kilometraje, por lo tanto no puede ser 0"
+                );
+            if (
+                service.KmService > 0
+                && registroKilometraje != null
+                && registroKilometraje.Kilometraje > service.KmService
+            )
+                throw new InvalidOperationException(
+                    "El kilometraje del servicio no puede ser menor al ultimo registro de kilometraje"
+                );
+            if (!String.IsNullOrEmpty(service.ServicioExcepcional))
                 service.Excepcional = true;
-            if(await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(service.IdVehiculo) is (RegistroKilometraje ultimoRegistroDeKilometraje2) && service.KmService > ultimoRegistroDeKilometraje2.Kilometraje)
+            if (
+                service.KmService > 0
+                && (
+                    registroKilometraje == null
+                    || service.KmService > registroKilometraje.Kilometraje
+                )
+            )
             {
-                await _serviceRegistroKilometraje.AddAsync(new RegistroKilometraje
-                {
-                    IdVehiculo = service.IdVehiculo,
-                    Kilometraje = service.KmService,
-                    FechaRegistro = DateTime.Now,
-                    Estado = true
-                });
+                await _serviceRegistroKilometraje.AddAsync(
+                    new RegistroKilometraje
+                    {
+                        IdVehiculo = service.IdVehiculo,
+                        Kilometraje = service.KmService,
+                        FechaRegistro = DateTime.Now,
+                        Estado = true,
+                    }
+                );
             }
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
@@ -99,10 +133,16 @@ namespace Backend.Services
             _context.Services.Update(serviceFinded);
             await _context.SaveChangesAsync();
         }
+
         public async Task<Service?> BuscarServicioConKilometraje(int idVehiculo)
         {
-            return _context.Services.Where(service => (service.IdVehiculo == idVehiculo && service.KmService > 0)).FirstOrDefault();
+            return _context
+                .Services.Where(service =>
+                    (service.IdVehiculo == idVehiculo && service.KmService > 0)
+                )
+                .FirstOrDefault();
         }
+
         // ELIMINAR SERVICIO
         public async Task<bool> DeleteAsync(int id)
         {
@@ -148,7 +188,8 @@ namespace Backend.Services
         {
             var query = _context.Services.Where(s => s.IdVehiculo == vehiculoId);
             var totalRegistros = await query.CountAsync();
-            var items = await query.OrderByDescending(s => s.IdService)
+            var items = await query
+                .OrderByDescending(s => s.IdService)
                 .Skip((nroPagina - 1) * tamanoPagina)
                 .Take(tamanoPagina)
                 .ToListAsync();
@@ -178,10 +219,12 @@ namespace Backend.Services
             _context.Services.Update(service);
             return await _context.SaveChangesAsync() > 0;
         }
+
         public async Task<Service?> getUltimoServiceByVehiculo(int idVehiculo)
         {
-            return await _context.Services.OrderByDescending(service => service.Fecha).FirstOrDefaultAsync(s => s.IdVehiculo == idVehiculo);
+            return await _context
+                .Services.OrderByDescending(service => service.Fecha)
+                .FirstOrDefaultAsync(s => s.IdVehiculo == idVehiculo);
         }
-        
     }
 }

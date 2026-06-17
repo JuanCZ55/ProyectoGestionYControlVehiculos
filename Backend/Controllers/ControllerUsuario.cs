@@ -366,12 +366,12 @@ public class ControllerUsuario : ControllerBase
                 ".jpeg" => "image/jpeg",
                 _ => "application/octet-stream", // Tipo por defecto
             };
-            await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
-            {
-                Entidad = NombreClases.Usuario,
-                Accion = AccionAuditoria.Select,
-                IdEntidad = null
-            });
+            //await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
+            //{
+            //    Entidad = NombreClases.Usuario,
+            //    Accion = AccionAuditoria.Select,
+            //    IdEntidad = null
+            //});
             return PhysicalFile(rutaAvatar, tipoMime);
         }
         catch (KeyNotFoundException ex)

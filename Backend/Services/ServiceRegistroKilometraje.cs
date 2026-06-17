@@ -42,17 +42,25 @@ namespace Backend.Services
                 tamanoPagina
             );
         }
-        public async Task<List<RegistroKilometraje>> ObtenerRegistrosAsync(bool misRegistros, bool estado, int idUsuarioActual)
+
+        public async Task<List<RegistroKilometraje>> ObtenerRegistrosAsync(
+            bool misRegistros,
+            bool estado,
+            int idUsuarioActual
+        )
         {
-            IQueryable<RegistroKilometraje> query = _context.RegistrosKilometraje
-                .Where(r => r.Estado == estado);
+            IQueryable<RegistroKilometraje> query = _context.RegistrosKilometraje.Where(r =>
+                r.Estado == estado
+            );
 
             if (misRegistros)
             {
-                var idsCreadosPorUsuario = await _context.Auditorias
-                    .Where(a => a.IdUsuario == idUsuarioActual
-                             && a.Entidad == NombreClases.RegistroKilometraje
-                             && a.Accion == AccionAuditoria.Create) 
+                var idsCreadosPorUsuario = await _context
+                    .Auditorias.Where(a =>
+                        a.IdUsuario == idUsuarioActual
+                        && a.Entidad == NombreClases.RegistroKilometraje
+                        && a.Accion == AccionAuditoria.Create
+                    )
                     .Select(a => a.IdEntidad)
                     .Distinct()
                     .ToListAsync();
@@ -64,6 +72,7 @@ namespace Backend.Services
 
             return registros;
         }
+
         // REGISTRO KILOMETRAJE POR ID
         public async Task<RegistroKilometraje?> GetByIdAsync(int id)
         {
@@ -74,9 +83,11 @@ namespace Backend.Services
             int idVehiculo
         )
         {
-            return await _context
+            var prueba = await _context
                 .RegistrosKilometraje.OrderByDescending(register => register.FechaRegistro)
                 .FirstOrDefaultAsync(r => r.IdVehiculo == idVehiculo);
+            Console.WriteLine(prueba);
+            return prueba;
         }
 
         public async Task<RegistroKilometraje?> GetLatestRegistroKilometrajeVehiculoIdAndNotSameAsync(
@@ -97,7 +108,10 @@ namespace Backend.Services
                 throw new KeyNotFoundException(
                     "Vehiculo con id " + registroKilometraje.IdVehiculo + " no encontrado"
                 );
-            if (await _serviceVehiculo.GetByIdAsync(registroKilometraje.IdVehiculo) is (Vehiculo veh) && !veh.Estado)
+            if (
+                await _serviceVehiculo.GetByIdAsync(registroKilometraje.IdVehiculo) is Vehiculo veh
+                && !veh.Estado
+            )
                 throw new InvalidOperationException("El vehiculo esta dado de baja");
             RegistroKilometraje? ultimoRegistroDeKilometraje =
                 await GetLatestRegistroKilometrajeByVehiculoIdAsync(registroKilometraje.IdVehiculo);
