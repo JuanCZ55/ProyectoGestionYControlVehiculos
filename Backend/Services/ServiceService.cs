@@ -143,11 +143,21 @@ namespace Backend.Services
         }
 
         // UPDATE SERVICIO
-        public async Task UpdateAsync(int id, UpdateServiceDto serviceDto)
+        public async Task UpdateAsync(int id, UpdateServiceDto serviceDto, int idUsuarioActual)
         {
             Service? serviceFinded = await _context.Services.FindAsync(id);
             if (serviceFinded == null)
                 throw new KeyNotFoundException("Servicio con id " + id + " no encontrado");
+
+            bool propio = await _context.Auditorias.AnyAsync(a =>
+                a.IdEntidad == id
+                && a.Entidad == NombreClases.Service
+                && a.Accion == AccionAuditoria.Create
+                && a.IdUsuario == idUsuarioActual
+            );
+
+            if (!propio)
+                throw new UnauthorizedAccessException();
 
             mapper.Map(serviceDto, serviceFinded);
 

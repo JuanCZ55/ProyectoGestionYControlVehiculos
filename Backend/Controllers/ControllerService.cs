@@ -131,10 +131,16 @@ public class ControllerService : ControllerBase
         }
         Service service = mapper.Map<Service>(serviceDto);
         service.IdService = id;
-
+        var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+        {
+            return Unauthorized(
+                new { message = "Token inválido o sin identificación de usuario." }
+            );
+        }
         try
         {
-            await _serviceService.UpdateAsync(id, serviceDto);
+            await _serviceService.UpdateAsync(id, serviceDto, idUsuarioActual);
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
@@ -148,6 +154,10 @@ public class ControllerService : ControllerBase
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new { message = "No tenes permiso para editarlo" });
         }
     }
 
