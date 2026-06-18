@@ -90,18 +90,30 @@ namespace Backend.Services
         }
 
         // UPDATE CHECKLISTDIARIO
-        public async Task UpdateAsync(UpdateChecklistDiarioDto checklistDiarioDto, int id)
+        public async Task UpdateAsync(UpdateChecklistDiarioDto checklistDiarioDto, int id, int idUsuario)
         {
-            ChecklistDiario? checklistDiarioExistente = await this.GetByIdAsync(id);
+            var esPropietario = await _context.Auditorias.AnyAsync(a =>
+                a.IdEntidad == id
+                && a.Entidad == NombreClases.ChecklistDiario
+                && a.Accion == AccionAuditoria.Create
+                && a.IdUsuario == idUsuario
+            );
+
+            if (!esPropietario)
+                throw new UnauthorizedAccessException("No tienes permiso para editar este registro.");
+
+            var checklistDiarioExistente = await _context.ChecklistsDiarios.FindAsync(id);
             if (checklistDiarioExistente == null)
-                throw new KeyNotFoundException("ChecklistDiario con id " + id + " no encontrada");
+                throw new KeyNotFoundException("ChecklistDiario con id " + id + " no encontrado.");
+
             if (
                 checklistDiarioExistente.IdVehiculo != checklistDiarioDto.IdVehiculo
-                && await _context.Vehiculos.FindAsync(checklistDiarioDto.IdVehiculo) == null
+                && !await _context.Vehiculos.AnyAsync(v => v.IdVehiculo == checklistDiarioDto.IdVehiculo)
             )
                 throw new KeyNotFoundException(
-                    "Vehiculo con id " + checklistDiarioDto.IdVehiculo + " no encontrado"
+                    "Vehículo con id " + checklistDiarioDto.IdVehiculo + " no encontrado."
                 );
+
             mapper.Map(checklistDiarioDto, checklistDiarioExistente);
             await _context.SaveChangesAsync();
         }

@@ -117,10 +117,15 @@ public class ControllerChecklistDiario : ControllerBase
         if (id <= 0)
             return BadRequest("El id debe ser mayor a 0.");
 
-        ChecklistDiario checklist = mapper.Map<ChecklistDiario>(checklistDto);
+        var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+        {
+            return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
+        }
+
         try
         {
-            await _serviceChecklistDiario.UpdateAsync(checklistDto, id);
+            await _serviceChecklistDiario.UpdateAsync(checklistDto, id, idUsuarioActual);
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
@@ -131,9 +136,13 @@ public class ControllerChecklistDiario : ControllerBase
             );
             return NoContent();
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
-            return NotFound("ChecklistDiario no encontrado con id: " + id);
+            return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
         }
     }
 
