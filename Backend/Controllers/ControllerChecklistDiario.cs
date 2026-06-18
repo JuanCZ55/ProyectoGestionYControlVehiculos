@@ -46,7 +46,7 @@ public class ControllerChecklistDiario : ControllerBase
 
         return Ok(checklists);
     }
-    [HttpGet("/checklist/{idVehiculo}")]
+    [HttpGet("limited/{idVehiculo}")]
     public async Task<IActionResult> GetListadoDeRegistros(int idVehiculo, [FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
     {
         try

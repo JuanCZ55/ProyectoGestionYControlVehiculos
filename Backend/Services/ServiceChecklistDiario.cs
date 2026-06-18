@@ -24,9 +24,9 @@ namespace Backend.Services
             var idAudsPermitidos = queryAud.Select(a => a.IdEntidad).Distinct();
 
             return await _context.ChecklistsDiarios
-                .Take(30)
-                .OrderByDescending(c => c.Fecha)
                 .Where(c => c.Estado == estado && c.IdVehiculo == idVehiculo && idAudsPermitidos.Contains(c.IdChecklistDiario))
+                .OrderByDescending(c => c.Fecha)
+                .Take(30)
                 .Select(c => new ChecklistDiario
                 {
                     IdChecklistDiario = c.IdChecklistDiario,
@@ -85,6 +85,7 @@ namespace Backend.Services
         {
             _context.ChecklistsDiarios.Add(checklistDiario);
             await _context.SaveChangesAsync();
+            checklistDiario.currentUser=true;
             return checklistDiario;
         }
 
