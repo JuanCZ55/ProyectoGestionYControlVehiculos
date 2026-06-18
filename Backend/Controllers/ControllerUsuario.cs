@@ -379,4 +379,91 @@ public class ControllerUsuario : ControllerBase
             return NotFound(new { mensaje = ex.Message });
         }
     }
+
+    [Authorize(Policy = "Everyone")]
+    [HttpPut("password")]
+    public async Task<IActionResult> password([FromBody] UpdatePasswordDto passwordDto)
+    {
+        try
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+            {
+                return Unauthorized(new { message = "Token inválido." });
+            }
+            await _serviceUsuario.resetPassword(
+                idUsuarioActual,
+                passwordDto.NewPassword,
+                passwordDto.currentPassword
+            );
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = idUsuarioActual,
+                    Entidad = NombreClases.Usuario,
+                    Accion = AccionAuditoria.ChangePassword,
+                }
+            );
+            return Ok(new { message = "Contraseña Actualizada" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize(policy: "Everyone")]
+    [HttpPut("email")]
+    public async Task<IActionResult> email([FromBody] UpdateGmailDto emailDto)
+    {
+        try
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+            {
+                return Unauthorized(new { message = "Token inválido." });
+            }
+            await _serviceUsuario.updateEmail(idUsuarioActual, emailDto.Gmail!);
+            await _serviceAuditoria.AddAsync(
+                new CreateAuditoriaDto
+                {
+                    IdEntidad = idUsuarioActual,
+                    Entidad = NombreClases.Usuario,
+                    Accion = AccionAuditoria.Update,
+                }
+            );
+            return Ok(new { message = "Email actualizado" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("getMe")]
+    public async Task<IActionResult> GetMe()
+    {
+        var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+        {
+            return Unauthorized(new { message = "Token inválido." });
+        }
+        var usuario = await _serviceUsuario.GetByIdAsync(idUsuarioActual);
+        if (usuario == null)
+        {
+            return NotFound();
+        }
+        return Ok(usuario);
+    }
 }
