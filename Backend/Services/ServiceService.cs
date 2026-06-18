@@ -75,7 +75,10 @@ namespace Backend.Services
         }
 
         // MÉTODO PRIVADO PARA CENTRALIZAR LAS VALIDACIONES
-        private async Task<RegistroKilometraje?> ValidarReglasNegocioAsync(Service service)
+        private async Task<RegistroKilometraje?> ValidarReglasNegocioAsync(
+            Service service,
+            bool validarKilometraje = true
+        )
         {
             if (ValidarService.validarTodosLosItemsEnFalse(service))
                 throw new InvalidOperationException("Registre al menos un ítem del servicio");
@@ -85,19 +88,24 @@ namespace Backend.Services
                     service.IdVehiculo
                 );
 
-            if (service.KmService == 0 && registroKilometraje != null)
-                throw new InvalidOperationException(
-                    "El KM es obligatorio y debe ser mayor a " + registroKilometraje.Kilometraje
-                );
+            // Modificación: Solo validar el kilometraje si el parámetro es true
+            if (validarKilometraje)
+            {
+                if (service.KmService == 0 && registroKilometraje != null)
+                    throw new InvalidOperationException(
+                        "El KM es obligatorio y debe ser mayor a " + registroKilometraje.Kilometraje
+                    );
 
-            if (
-                service.KmService > 0
-                && registroKilometraje != null
-                && registroKilometraje.Kilometraje > service.KmService
-            )
-                throw new InvalidOperationException(
-                    "El KM debe ser mayor a " + registroKilometraje.Kilometraje
-                );
+                if (
+                    service.KmService > 0
+                    && registroKilometraje != null
+                    && registroKilometraje.Kilometraje > service.KmService
+                )
+                    throw new InvalidOperationException(
+                        "El KM debe ser mayor a " + registroKilometraje.Kilometraje
+                    );
+            }
+
             if (string.IsNullOrEmpty(service.Proveedor))
             {
                 throw new InvalidOperationException("El proveedor es obligatorio");
@@ -106,7 +114,6 @@ namespace Backend.Services
             if (!string.IsNullOrEmpty(service.ServicioExcepcional))
                 service.Excepcional = true;
 
-            // Retornamos el registro de kilometraje
             return registroKilometraje;
         }
 
@@ -114,7 +121,10 @@ namespace Backend.Services
         public async Task<Service> AddAsync(Service service)
         {
             // Validaciones centralizadas
-            RegistroKilometraje? registroKilometraje = await ValidarReglasNegocioAsync(service);
+            RegistroKilometraje? registroKilometraje = await ValidarReglasNegocioAsync(
+                service,
+                true
+            );
 
             // Registrar el nuevo kilometraje si corresponde
             if (
@@ -135,7 +145,7 @@ namespace Backend.Services
                     }
                 );
             }
-
+            service.Fecha = DateOnly.FromDateTime(DateTime.Now);
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
 
@@ -143,7 +153,11 @@ namespace Backend.Services
         }
 
         // UPDATE SERVICIO
-        public async Task UpdateAsync(int id, UpdateServiceDto serviceDto, int idUsuarioActual)
+        public async Task<Service> UpdateAsync(
+            int id,
+            UpdateServiceDto serviceDto,
+            int idUsuarioActual
+        )
         {
             Service? serviceFinded = await _context.Services.FindAsync(id);
             if (serviceFinded == null)
@@ -158,12 +172,13 @@ namespace Backend.Services
 
             if (!propio)
                 throw new UnauthorizedAccessException();
-
+            int kilometrajeOriginal = serviceFinded.KmService;
             mapper.Map(serviceDto, serviceFinded);
-
+            bool kilometrajeModificado = serviceFinded.KmService != kilometrajeOriginal;
             // Validaciones centralizadas
             RegistroKilometraje? registroKilometraje = await ValidarReglasNegocioAsync(
-                serviceFinded
+                serviceFinded,
+                validarKilometraje: kilometrajeModificado
             );
 
             // Registrar el nuevo kilometraje si corresponde
@@ -188,6 +203,32 @@ namespace Backend.Services
 
             _context.Services.Update(serviceFinded);
             await _context.SaveChangesAsync();
+            return new Service
+            {
+                IdService = serviceFinded.IdService,
+                Bujias = serviceFinded.Bujias,
+                BombaCombustible = serviceFinded.BombaCombustible,
+                FiltroDeAire = serviceFinded.FiltroDeAire,
+                FiltroDeAceite = serviceFinded.FiltroDeAceite,
+                FiltroDeCombustible = serviceFinded.FiltroDeCombustible,
+                CorreaPolyV = serviceFinded.CorreaPolyV,
+                CorreaDentada = serviceFinded.CorreaDentada,
+                AlineoBalanceo = serviceFinded.AlineoBalanceo,
+                BombaAgua = serviceFinded.BombaAgua,
+                BombaAceite = serviceFinded.BombaAceite,
+                Aceite = serviceFinded.Aceite,
+                Excepcional = serviceFinded.Excepcional,
+                ServicioExcepcional = serviceFinded.ServicioExcepcional,
+                Realizado = serviceFinded.Realizado,
+                Proveedor = serviceFinded.Proveedor,
+                KmService = serviceFinded.KmService,
+                Detalle = serviceFinded.Detalle,
+                Fecha = serviceFinded.Fecha,
+                IdVehiculo = serviceFinded.IdVehiculo,
+                Estado = serviceFinded.Estado,
+                currentUser = serviceFinded.currentUser,
+                Vehiculo = null,
+            };
         }
 
         public async Task<Service?> BuscarServicioConKilometraje(int idVehiculo)
@@ -311,7 +352,7 @@ namespace Backend.Services
                     && s.IdVehiculo == idVehiculo
                     && idAudsPermitidos.Contains(s.IdService)
                 )
-                .OrderByDescending(s => s.Fecha)
+                .OrderByDescending(s => s.IdService)
                 .Take(30)
                 .Select(s => new Service
                 {

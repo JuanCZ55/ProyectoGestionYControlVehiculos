@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -195,13 +196,21 @@ namespace Backend.Services
             Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
             if (usuarioFinded == null)
                 throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
-
+            if (contraseña == null || contraseña == "" || oldPassword == null || oldPassword == "")
+            {
+                throw new InvalidOperationException("Complete todos los campos");
+            }
+            String pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$";
+            if (!Regex.IsMatch(contraseña, pattern) || !Regex.IsMatch(oldPassword, pattern))
+            {
+                throw new InvalidOperationException("La contraseña no es segura debe");
+            }
             if (
                 oldPassword != null
                 && !_servicePassword.VerifyPassword(oldPassword!, usuarioFinded.Contrasena)
             )
             {
-                throw new InvalidOperationException("La contraseña antigua es incorrecta");
+                throw new InvalidOperationException("La contraseña anterior es incorrecta");
             }
             string password = _servicePassword.HashPassword(contraseña);
             usuarioFinded.Contrasena = password;
@@ -213,10 +222,14 @@ namespace Backend.Services
         {
             Usuario? usuarioFinded = await _context.Usuarios.FindAsync(id);
             if (usuarioFinded == null)
-                throw new KeyNotFoundException("Usuario con id " + id + " no encontrado");
+                throw new KeyNotFoundException("No se encontró el usuario");
+            String pattern =
+                @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|gob|com\.[a-z]{2}|gob\.[a-z]{2})$";
+            if (email == null || email == "" || !Regex.IsMatch(email, pattern))
+                throw new InvalidOperationException("Email no válido");
             if (await getUsuarioByEmailAsync(email) is Usuario usuario && usuario.IdUsuario != id)
             {
-                throw new InvalidOperationException("El usuario con gmail " + email + " ya existe");
+                throw new InvalidOperationException("El email ya esta en uso");
             }
             usuarioFinded.Gmail = email;
             await _context.SaveChangesAsync();

@@ -101,19 +101,23 @@ public class ControllerService : ControllerBase
         try
         {
             var newService = await _serviceService.AddAsync(service);
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+            {
+                return Unauthorized(
+                    new { message = "Token inválido o sin identificación de usuario." }
+                );
+            }
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
                     IdEntidad = newService.IdService,
                     Entidad = NombreClases.Service,
                     Accion = AccionAuditoria.Create,
+                    IdUsuario = idUsuarioActual,
                 }
             );
-            return CreatedAtAction(
-                nameof(GetServiceById),
-                new { id = newService.IdService },
-                newService
-            );
+            return Ok(new { message = "Servicio creado exitosamente." });
         }
         catch (InvalidOperationException ex)
         {
@@ -131,6 +135,7 @@ public class ControllerService : ControllerBase
         }
         Service service = mapper.Map<Service>(serviceDto);
         service.IdService = id;
+        service.Fecha = DateOnly.FromDateTime(DateTime.Now);
         var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
         {
@@ -140,16 +145,21 @@ public class ControllerService : ControllerBase
         }
         try
         {
-            await _serviceService.UpdateAsync(id, serviceDto, idUsuarioActual);
+            Service serviceactualizado = await _serviceService.UpdateAsync(
+                id,
+                serviceDto,
+                idUsuarioActual
+            );
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
                     IdEntidad = id,
                     Entidad = NombreClases.Service,
                     Accion = AccionAuditoria.Update,
+                    IdUsuario = idUsuarioActual,
                 }
             );
-            return NoContent();
+            return Ok(new { message = "Servicio actualizado exitosamente." });
         }
         catch (KeyNotFoundException ex)
         {
@@ -158,6 +168,10 @@ public class ControllerService : ControllerBase
         catch (UnauthorizedAccessException)
         {
             return Unauthorized(new { message = "No tenes permiso para editarlo" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -311,10 +325,6 @@ public class ControllerService : ControllerBase
                 idVehiculo
             );
 
-            if (resultado.Count == 0)
-            {
-                return NotFound(new { message = "No se encontraron registros de servicios." });
-            }
             return Ok(resultado);
         }
         catch (Exception)

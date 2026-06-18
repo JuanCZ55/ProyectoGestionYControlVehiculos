@@ -419,7 +419,7 @@ public class ControllerUsuario : ControllerBase
 
     [Authorize(policy: "Everyone")]
     [HttpPut("email")]
-    public async Task<IActionResult> email([FromBody] UpdateGmailDto emailDto)
+    public async Task<IActionResult> email([FromBody] String email)
     {
         try
         {
@@ -429,7 +429,7 @@ public class ControllerUsuario : ControllerBase
             {
                 return Unauthorized(new { message = "Token inválido." });
             }
-            await _serviceUsuario.updateEmail(idUsuarioActual, emailDto.Gmail!);
+            await _serviceUsuario.updateEmail(idUsuarioActual, email);
             await _serviceAuditoria.AddAsync(
                 new CreateAuditoriaDto
                 {
