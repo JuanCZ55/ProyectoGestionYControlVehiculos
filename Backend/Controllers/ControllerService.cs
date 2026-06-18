@@ -1,9 +1,9 @@
+using System.Security.Claims;
 using AutoMapper;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 [Route("api/mantenimiento")]
 [ApiController]
@@ -38,8 +38,12 @@ public class ControllerService : ControllerBase
         );
         return Ok(services);
     }
+
     [HttpGet("/GetListadoRegistrosService")]
-    public async Task<IActionResult> GetListadoDeRegistros([FromQuery] bool misRegistros = false, [FromQuery] bool estado = true)
+    public async Task<IActionResult> GetListadoDeRegistros(
+        [FromQuery] bool misRegistros = false,
+        [FromQuery] bool estado = true
+    )
     {
         try
         {
@@ -47,18 +51,28 @@ public class ControllerService : ControllerBase
 
             if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
             {
-                return Unauthorized(new { message = "Token inválido o sin identificación de usuario." });
+                return Unauthorized(
+                    new { message = "Token inválido o sin identificación de usuario." }
+                );
             }
 
-            List<Service>? resultado = await _serviceService.ObtenerRegistrosAsync(misRegistros, estado, idUsuarioActual);
+            List<Service>? resultado = await _serviceService.ObtenerRegistrosAsync(
+                misRegistros,
+                estado,
+                idUsuarioActual
+            );
 
             return Ok(resultado);
         }
         catch (System.Exception ex)
         {
-            return StatusCode(500, new { message = "Error al obtener los registros", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Error al obtener los registros", error = ex.Message }
+            );
         }
     }
+
     // GET SERVICIO POR ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetServiceById(int id)
@@ -68,11 +82,14 @@ public class ControllerService : ControllerBase
         {
             return NotFound();
         }
-        await _serviceAuditoria.AddAsync( new CreateAuditoriaDto{
-            Accion = AccionAuditoria.Select,
-            Entidad = NombreClases.Service,
-            IdEntidad = null
-        });
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                Accion = AccionAuditoria.Select,
+                Entidad = NombreClases.Service,
+                IdEntidad = null,
+            }
+        );
         return Ok(service);
     }
 
@@ -98,11 +115,10 @@ public class ControllerService : ControllerBase
                 newService
             );
         }
-        catch(InvalidOperationException ex)
+        catch (InvalidOperationException ex)
         {
             return BadRequest(new { message = ex.Message });
         }
-        
     }
 
     // PUT ACTUALIZAR SERVICIO
@@ -213,12 +229,14 @@ public class ControllerService : ControllerBase
         {
             return NotFound("No se encontraron servicios para el vehiculo seleccionado.");
         }
-        await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
-        {
-            Accion = AccionAuditoria.Select,
-            Entidad = NombreClases.Service,
-            IdEntidad = null
-        });
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                Accion = AccionAuditoria.Select,
+                Entidad = NombreClases.Service,
+                IdEntidad = null,
+            }
+        );
         return Ok(servicesVehiculo);
     }
 
@@ -258,5 +276,40 @@ public class ControllerService : ControllerBase
             }
         );
         return NoContent();
+    }
+
+    [HttpGet("getlistadoservicio/{idVehiculo}")]
+    public async Task<IActionResult> GetListadoDeServices(
+        [FromQuery] bool misRegistros,
+        [FromQuery] bool estado,
+        int idVehiculo
+    )
+    {
+        try
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int idUsuarioActual))
+            {
+                return Unauthorized(new { message = "Token inválido." });
+            }
+
+            List<Service>? resultado = await _serviceService.ObtenerServiciosAsync(
+                misRegistros,
+                estado,
+                idUsuarioActual,
+                idVehiculo
+            );
+
+            if (resultado.Count == 0)
+            {
+                return NotFound(new { message = "No se encontraron registros de servicios." });
+            }
+            return Ok(resultado);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { message = "Error al obtener los registros" });
+        }
     }
 }

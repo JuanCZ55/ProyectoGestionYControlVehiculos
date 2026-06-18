@@ -74,32 +74,49 @@ namespace Backend.Services
             return await _context.Services.FindAsync(id);
         }
 
-        // NUEVO SERVICIO
-        public async Task<Service> AddAsync(Service service)
+        // MÉTODO PRIVADO PARA CENTRALIZAR LAS VALIDACIONES
+        private async Task<RegistroKilometraje?> ValidarReglasNegocioAsync(Service service)
         {
             if (ValidarService.validarTodosLosItemsEnFalse(service))
-                throw new InvalidOperationException(
-                    "No puede crear un servicio con todos los campos vacios"
-                );
+                throw new InvalidOperationException("Registre al menos un ítem del servicio");
 
             RegistroKilometraje? registroKilometraje =
                 await _serviceRegistroKilometraje.GetLatestRegistroKilometrajeByVehiculoIdAsync(
                     service.IdVehiculo
                 );
+
             if (service.KmService == 0 && registroKilometraje != null)
                 throw new InvalidOperationException(
-                    "El vehiculo tiene registros con kilometraje, por lo tanto no puede ser 0"
+                    "El KM es obligatorio y debe ser mayor a " + registroKilometraje.Kilometraje
                 );
+
             if (
                 service.KmService > 0
                 && registroKilometraje != null
                 && registroKilometraje.Kilometraje > service.KmService
             )
                 throw new InvalidOperationException(
-                    "El kilometraje del servicio no puede ser menor al ultimo registro de kilometraje"
+                    "El KM debe ser mayor a " + registroKilometraje.Kilometraje
                 );
-            if (!String.IsNullOrEmpty(service.ServicioExcepcional))
+            if (string.IsNullOrEmpty(service.Proveedor))
+            {
+                throw new InvalidOperationException("El proveedor es obligatorio");
+            }
+
+            if (!string.IsNullOrEmpty(service.ServicioExcepcional))
                 service.Excepcional = true;
+
+            // Retornamos el registro de kilometraje
+            return registroKilometraje;
+        }
+
+        // CREATE SERVICIO
+        public async Task<Service> AddAsync(Service service)
+        {
+            // Validaciones centralizadas
+            RegistroKilometraje? registroKilometraje = await ValidarReglasNegocioAsync(service);
+
+            // Registrar el nuevo kilometraje si corresponde
             if (
                 service.KmService > 0
                 && (
@@ -118,8 +135,10 @@ namespace Backend.Services
                     }
                 );
             }
+
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
+
             return service;
         }
 
@@ -128,8 +147,35 @@ namespace Backend.Services
         {
             Service? serviceFinded = await _context.Services.FindAsync(id);
             if (serviceFinded == null)
-                throw new KeyNotFoundException("Service con id " + id + " no encontrado");
+                throw new KeyNotFoundException("Servicio con id " + id + " no encontrado");
+
             mapper.Map(serviceDto, serviceFinded);
+
+            // Validaciones centralizadas
+            RegistroKilometraje? registroKilometraje = await ValidarReglasNegocioAsync(
+                serviceFinded
+            );
+
+            // Registrar el nuevo kilometraje si corresponde
+            if (
+                serviceFinded.KmService > 0
+                && (
+                    registroKilometraje == null
+                    || serviceFinded.KmService > registroKilometraje.Kilometraje
+                )
+            )
+            {
+                await _serviceRegistroKilometraje.AddAsync(
+                    new RegistroKilometraje
+                    {
+                        IdVehiculo = serviceFinded.IdVehiculo,
+                        Kilometraje = serviceFinded.KmService,
+                        FechaRegistro = DateTime.Now,
+                        Estado = true,
+                    }
+                );
+            }
+
             _context.Services.Update(serviceFinded);
             await _context.SaveChangesAsync();
         }
@@ -225,6 +271,71 @@ namespace Backend.Services
             return await _context
                 .Services.OrderByDescending(service => service.Fecha)
                 .FirstOrDefaultAsync(s => s.IdVehiculo == idVehiculo);
+        }
+
+        public async Task<List<Service>> ObtenerServiciosAsync(
+            bool misRegistros,
+            bool estado,
+            int idUsuarioActual,
+            int idVehiculo
+        )
+        {
+            // Definir la consulta base de auditoría para la entidad Service
+            var queryAud = _context.Auditorias.Where(a =>
+                a.Entidad == NombreClases.Service && a.Accion == AccionAuditoria.Create
+            );
+
+            // Filtrar por usuario si se solicitan "mis registros"
+            if (misRegistros)
+            {
+                queryAud = queryAud.Where(a => a.IdUsuario == idUsuarioActual);
+            }
+
+            // Obtener los IDs permitidos
+            var idAudsPermitidos = queryAud.Select(a => a.IdEntidad).Distinct();
+
+            // Consulta principal (Where -> OrderBy -> Take -> Select)
+            return await _context
+                .Services.Where(s =>
+                    s.Estado == estado
+                    && s.IdVehiculo == idVehiculo
+                    && idAudsPermitidos.Contains(s.IdService)
+                )
+                .OrderByDescending(s => s.Fecha)
+                .Take(30)
+                .Select(s => new Service
+                {
+                    IdService = s.IdService,
+                    Bujias = s.Bujias,
+                    BombaCombustible = s.BombaCombustible,
+                    FiltroDeAire = s.FiltroDeAire,
+                    FiltroDeAceite = s.FiltroDeAceite,
+                    FiltroDeCombustible = s.FiltroDeCombustible,
+                    CorreaPolyV = s.CorreaPolyV,
+                    CorreaDentada = s.CorreaDentada,
+                    AlineoBalanceo = s.AlineoBalanceo,
+                    BombaAgua = s.BombaAgua,
+                    BombaAceite = s.BombaAceite,
+                    Aceite = s.Aceite,
+                    Excepcional = s.Excepcional,
+                    ServicioExcepcional = s.ServicioExcepcional,
+                    Realizado = s.Realizado,
+                    Proveedor = s.Proveedor,
+                    KmService = s.KmService,
+                    Detalle = s.Detalle,
+                    Fecha = s.Fecha,
+                    IdVehiculo = s.IdVehiculo,
+                    Estado = s.Estado,
+                    currentUser =
+                        misRegistros
+                        || _context.Auditorias.Any(a =>
+                            a.IdUsuario == idUsuarioActual
+                            && a.Entidad == NombreClases.Service
+                            && a.Accion == AccionAuditoria.Create
+                            && a.IdEntidad == s.IdService
+                        ),
+                })
+                .ToListAsync();
         }
     }
 }
