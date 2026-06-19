@@ -37,7 +37,6 @@ public class UpdateChecklistDiarioDto
     [Required(ErrorMessage = "El campo {0} es requerido")]
     public bool? MatafuegoVigente { get; set; }
 
-    [MinLength(3, ErrorMessage = "El campo {0} debe tener al menos {1} caracteres")]
     [MaxLength(255, ErrorMessage = "El campo {0} debe tener menos de {1} caracteres")]
     public string? Observaciones { get; set; }
     public DateTime? Fecha { get; set; }
