@@ -170,7 +170,7 @@ namespace Backend.Services
                     id
                 )
                     is (RegistroKilometraje registroLatestNotVehiculo)
-                && registroKilometrajeDto.Kilometraje <= registroLatestNotVehiculo.Kilometraje
+                && !(id == registroLatestNotVehiculo.IdRegistroKilometraje) && registroKilometrajeDto.Kilometraje <= registroLatestNotVehiculo.Kilometraje 
             )
             {
                 throw new InvalidOperationException(
