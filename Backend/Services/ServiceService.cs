@@ -10,16 +10,19 @@ namespace Backend.Services
         private readonly AppDbContext _context;
         private readonly IMapper mapper;
         private readonly ServiceRegistroKilometraje _serviceRegistroKilometraje;
+        private readonly ServiceAuditoria _serviceAuditoria;
 
         public ServiceService(
             AppDbContext context,
             IMapper mapper,
-            ServiceRegistroKilometraje serviceRegistroKilometraje
+            ServiceRegistroKilometraje serviceRegistroKilometraje,
+            ServiceAuditoria serviceAuditoria
         )
         {
             _context = context;
             this.mapper = mapper;
             _serviceRegistroKilometraje = serviceRegistroKilometraje;
+            _serviceAuditoria = serviceAuditoria;
         }
 
         public async Task<List<Service>> ObtenerRegistrosAsync(
@@ -135,13 +138,22 @@ namespace Backend.Services
                 )
             )
             {
-                await _serviceRegistroKilometraje.AddAsync(
+                RegistroKilometraje km = await _serviceRegistroKilometraje.AddAsync(
                     new RegistroKilometraje
                     {
                         IdVehiculo = service.IdVehiculo,
                         Kilometraje = service.KmService,
                         FechaRegistro = DateTime.Now,
                         Estado = true,
+                    }
+                );
+
+                await _serviceAuditoria.AddAsync(
+                    new CreateAuditoriaDto
+                    {
+                        IdEntidad = km.IdRegistroKilometraje,
+                        Entidad = NombreClases.RegistroKilometraje,
+                        Accion = AccionAuditoria.Create,
                     }
                 );
             }

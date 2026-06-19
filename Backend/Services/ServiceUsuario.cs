@@ -203,14 +203,14 @@ namespace Backend.Services
             String pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$";
             if (!Regex.IsMatch(contraseña, pattern) || !Regex.IsMatch(oldPassword, pattern))
             {
-                throw new InvalidOperationException("La contraseña no es segura debe");
+                throw new InvalidOperationException("La contraseña no es segura");
             }
             if (
                 oldPassword != null
                 && !_servicePassword.VerifyPassword(oldPassword!, usuarioFinded.Contrasena)
             )
             {
-                throw new InvalidOperationException("La contraseña anterior es incorrecta");
+                throw new InvalidOperationException("La contraseña actual es incorrecta");
             }
             string password = _servicePassword.HashPassword(contraseña);
             usuarioFinded.Contrasena = password;
