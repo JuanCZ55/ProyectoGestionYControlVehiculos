@@ -213,7 +213,13 @@ namespace Backend.Services
                 );
             }
 
+            if (String.IsNullOrEmpty(serviceFinded.ServicioExcepcional?.Trim()))
+            {
+                serviceFinded.Excepcional = false;
+            }
+
             _context.Services.Update(serviceFinded);
+
             await _context.SaveChangesAsync();
             return new Service
             {
