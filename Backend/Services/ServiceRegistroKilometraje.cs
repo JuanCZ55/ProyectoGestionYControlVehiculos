@@ -126,16 +126,16 @@ namespace Backend.Services
                 throw new InvalidOperationException("El vehiculo esta dado de baja");
             RegistroKilometraje? ultimoRegistroDeKilometraje =
                 await GetLatestRegistroKilometrajeByVehiculoIdAsync(registroKilometraje.IdVehiculo);
-            if (
-                ultimoRegistroDeKilometraje != null
-                && DateOnly.FromDateTime(DateTime.Now)
-                    == DateOnly.FromDateTime(ultimoRegistroDeKilometraje.FechaRegistro)
-            )
-            {
-                throw new InvalidOperationException(
-                    "No se puede agregar mas de un registro por dia"
-                );
-            }
+            //if (
+            //    ultimoRegistroDeKilometraje != null
+            //    && DateOnly.FromDateTime(DateTime.Now)
+            //        == DateOnly.FromDateTime(ultimoRegistroDeKilometraje.FechaRegistro)
+            //)
+            //{
+            //    throw new InvalidOperationException(
+            //        "No se puede agregar mas de un registro por dia"
+            //    );
+            //}
             if (
                 ultimoRegistroDeKilometraje != null
                 && registroKilometraje.Kilometraje <= ultimoRegistroDeKilometraje.Kilometraje
@@ -164,7 +164,7 @@ namespace Backend.Services
                 throw new KeyNotFoundException(
                     "Vehiculo con id " + registroKilometrajeDto.IdVehiculo + " no encontrado"
                 );
-            if (
+            if (registroFinded.Kilometraje != registroKilometrajeDto.Kilometraje &&
                 await GetLatestRegistroKilometrajeVehiculoIdAndNotSameAsync(
                     registroKilometrajeDto.IdVehiculo,
                     id
