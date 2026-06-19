@@ -51,13 +51,15 @@ public class ControllerVehiculo : ControllerBase
     [HttpGet("notPaginated")]
     public async Task<IActionResult> GetAllVehiculosNotPaginated()
     {
-        List<VehiculoDto>? vehiculosFinded = await _serviceVehiculo.getAllNotPaginated();
+        List<VehiculoDto>? vehiculosFinded = await _serviceVehiculo.GetAllNotPaginated();
+        /*
         await _serviceAuditoria.AddAsync(new CreateAuditoriaDto
         {
             IdEntidad = null,
             Entidad = NombreClases.Vehiculo,
             Accion = AccionAuditoria.Select
         });
+        */
         return Ok(vehiculosFinded);
     }
     // GET VEHICULO POR ID
@@ -65,6 +67,26 @@ public class ControllerVehiculo : ControllerBase
     public async Task<IActionResult> GetVehiculoById(int id)
     {
         var vehiculo = await _serviceVehiculo.GetByIdAsync(id);
+        if (vehiculo == null)
+        {
+            return NotFound();
+        }
+        await _serviceAuditoria.AddAsync(
+            new CreateAuditoriaDto
+            {
+                IdEntidad = id,
+                Entidad = NombreClases.Vehiculo,
+                Accion = AccionAuditoria.Select,
+            }
+        );
+        return Ok(vehiculo);
+    }
+
+    // GET VEHICULO POR ID
+    [HttpGet("obtener/{id}")]
+    public async Task<IActionResult> VehiculoById(int id)
+    {
+        var vehiculo = await _serviceVehiculo.GetById(id);
         if (vehiculo == null)
         {
             return NotFound();

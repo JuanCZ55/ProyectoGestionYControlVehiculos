@@ -10,52 +10,49 @@ namespace Backend.Services
         private readonly IMapper mapper;
         private readonly ServiceMatafuego serviceMatafuego;
         private readonly IServiceProvider serviceProvider;
-        public ServiceVehiculo(
-            AppDbContext context,
-            IMapper mapper,
-            ServiceMatafuego serviceMatafuego
-            ,
-            IServiceProvider serviceProvider
-        )
+        public ServiceVehiculo(AppDbContext context, IMapper mapper, ServiceMatafuego serviceMatafuego, IServiceProvider serviceProvider )
         {
             _context = context;
             this.mapper = mapper;
             this.serviceMatafuego = serviceMatafuego;
             this.serviceProvider = serviceProvider;
         }
-        public async Task<List<VehiculoDto>?> getAllNotPaginated()
+
+        public async Task<List<VehiculoDto>> GetAllNotPaginated()
         {
-            IQueryable<Vehiculo> query = _context.Vehiculos;
-            query.Where(v => v.Estado == true);
-            List<VehiculoDto>? vehiculos = await query.Include(m => m.Matafuego).OrderBy(v => v.IdVehiculo).Select(v => new VehiculoDto
-            {
-                IdVehiculo = v.IdVehiculo,
-                Marca = v.Marca,
-                Modelo = v.Modelo,
-                Anio = v.Anio,
-                Patente = v.Patente,
-                Color = v.Color,
-                CantidadNeumaticos = v.CantidadNeumaticos,
-                CantidadAuxilios = v.CantidadAuxilios,
-                NumeroChasis = v.NumeroChasis,
-                NumeroMotor = v.NumeroMotor,
-                IdMatafuego = v.IdMatafuego,
-                Matafuego =
-                        v.Matafuego != null
-                            ? new MatafuegoDto
-                            {
-                                IdMatafuego = v.Matafuego.IdMatafuego,
-                                NroSerie = v.Matafuego.NroSerie,
-                                Proveedor = v.Matafuego.Proveedor,
-                                FechaCarga = v.Matafuego.FechaCarga,
-                                FechaVencimiento = v.Matafuego.FechaVencimiento,
-                                Estado = v.Matafuego.Estado,
-                            }
-                            : null,
-                Estado = v.Estado,
-            }).ToListAsync();
-            return vehiculos;
+            return await _context.Vehiculos
+                .Include(m => m.Matafuego)
+                .Where(v => v.Estado == true)
+                .OrderBy(v => v.IdVehiculo)
+                .Select(v => new VehiculoDto
+                {
+                    IdVehiculo = v.IdVehiculo,
+                    Marca = v.Marca,
+                    Modelo = v.Modelo,
+                    Anio = v.Anio,
+                    Patente = v.Patente,
+                    Color = v.Color,
+                    CantidadNeumaticos = v.CantidadNeumaticos,
+                    CantidadAuxilios = v.CantidadAuxilios,
+                    NumeroChasis = v.NumeroChasis,
+                    NumeroMotor = v.NumeroMotor,
+                    IdMatafuego = v.IdMatafuego,
+                    Matafuego = v.Matafuego != null
+                        ? new MatafuegoDto
+                        {
+                            IdMatafuego = v.Matafuego.IdMatafuego,
+                            NroSerie = v.Matafuego.NroSerie,
+                            Proveedor = v.Matafuego.Proveedor,
+                            FechaCarga = v.Matafuego.FechaCarga,
+                            FechaVencimiento = v.Matafuego.FechaVencimiento,
+                            Estado = v.Matafuego.Estado,
+                        }
+                        : null,
+                    Estado = v.Estado,
+                })
+                .ToListAsync();
         }
+        
         // GET TODO VEHICULOS
         public async Task<PagedResponse<VehiculoDto>> GetAllAsync(
             int nroPagina,
@@ -288,6 +285,41 @@ namespace Backend.Services
             vehiculo.IdMatafuego = idMatafuego;
             _context.Vehiculos.Update(vehiculo);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+public async Task<VehiculoDto?> GetById(int id)
+        {
+            // Se aplica el filtro 'Where' ANTES del 'Select' para que la búsqueda por ID
+            // se ejecute en la base de datos, lo cual es mucho más eficiente.
+            return await _context.Vehiculos
+                .Where(v => v.IdVehiculo == id)
+                .Select(v => new VehiculoDto
+                    {
+                        IdVehiculo = v.IdVehiculo,
+                        Marca = v.Marca,
+                        Modelo = v.Modelo,
+                        Anio = v.Anio,
+                        Patente = v.Patente,
+                        Color = v.Color,
+                        CantidadNeumaticos = v.CantidadNeumaticos,
+                        CantidadAuxilios = v.CantidadAuxilios,
+                        NumeroChasis = v.NumeroChasis,
+                        NumeroMotor = v.NumeroMotor,
+                        IdMatafuego = v.IdMatafuego,
+                        Matafuego = v.Matafuego != null
+                            ? new MatafuegoDto
+                            {
+                                IdMatafuego = v.Matafuego.IdMatafuego,
+                                NroSerie = v.Matafuego.NroSerie,
+                                Proveedor = v.Matafuego.Proveedor,
+                                FechaCarga = v.Matafuego.FechaCarga,
+                                FechaVencimiento = v.Matafuego.FechaVencimiento,
+                                Estado = v.Matafuego.Estado,
+                            }
+                            : null,
+                        Estado = v.Estado,
+                    })
+                .FirstOrDefaultAsync();
         }
     }
 }
