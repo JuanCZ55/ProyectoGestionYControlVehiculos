@@ -13,6 +13,7 @@ namespace Backend.Helpers
                 && !dto.FiltroDeCombustible 
                 && !dto.BombaAceite 
                 && !dto.FiltroDeAceite 
+                && !dto.FiltroDeAire
                 && !dto.Aceite 
                 && !dto.Bujias 
                 && !dto.CorreaDentada 
